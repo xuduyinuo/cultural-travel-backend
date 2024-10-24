@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -57,12 +58,12 @@ public class UserVO implements Serializable {
     /**
      * 创建时间
      */
-    private Date creatTime;
+    private LocalDateTime creatTime;
 
     /**
      * 更新时间
      */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 后端生成的token

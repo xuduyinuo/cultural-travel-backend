@@ -3,58 +3,27 @@ package com.xudu.culturaltravelbackend.model.entity;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.Data;
 
 /**
  * 
- * @TableName user
+ * @TableName tag
  */
-@TableName(value ="user")
+@TableName(value ="tag")
 @Data
-public class User implements Serializable {
+public class Tag implements Serializable {
     /**
-     * 用户id
+     * 标签id
      */
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
-     * 用户账号
+     * 标签名称
      */
-    private String userAccount;
-
-    /**
-     * 用户密码
-     */
-    private String userPassword;
-
-    /**
-     * 用户昵称
-     */
-    private String userName;
-
-    /**
-     * 用户电话
-     */
-    private String userPhone;
-
-    /**
-     * 用户头像
-     */
-    private String userImage;
-
-    /**
-     * 用户角色 o-普通用户 1-管理员
-     */
-    private Integer userRole;
-
-    /**
-     * 用户标签
-     */
-    private String userTags;
+    private String tagName;
 
     /**
      * 创建时间

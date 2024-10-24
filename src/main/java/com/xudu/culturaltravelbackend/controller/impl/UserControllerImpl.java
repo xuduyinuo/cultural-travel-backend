@@ -71,6 +71,10 @@ public class UserControllerImpl implements UserController {
     @Override
     public Result searchUserList(SearchUserRequest searchUserRequest, HttpServletRequest request) {
         Page<UserVO> userVOPage = userService.getUserListByPage(searchUserRequest, request);
+        //判断搜索结果
+        if (userVOPage.getTotal() == 0){
+            return Result.error(ErrorCode.PARAMS_ERROR, "无搜索结果");
+        }
         return Result.success(userVOPage);
     }
 
