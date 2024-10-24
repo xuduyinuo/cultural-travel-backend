@@ -3,10 +3,10 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xudu</groupId>
-    <artifactId>springboot-init</artifactId>
+    <artifactId>cultural-travel-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>springboot-init</name>
-    <description>springboot-init</description>
+    <name>cultural-travel-backend</name>
+    <description>cultural-travel-backend</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -115,6 +115,25 @@
             <version>1.2.20</version>
         </dependency>
 
+        <!-- 模板依赖了日志，所以需要该包 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
+        <!-- JWT依赖包 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.8.3</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -145,7 +164,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.xudu.springbootinit.SpringbootInitApplication</mainClass>
+                    <mainClass>com.xudu.culturaltravelbackend.CulturalTravelBackendApplicationuraltravelbackendApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>

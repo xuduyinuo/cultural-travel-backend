@@ -2,7 +2,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://39.105.205.47:3306/tour?serverTimezone=UTC
+    url: jdbc:mysql://39.105.205.47:3306/cultural_travel?serverTimezone=UTC
     username: dxxxx
     password: dxxxx13790
     # redis 配置

@@ -19,7 +19,7 @@ spring:
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/springboot_init?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://39.105.205.47:3306/cultural_travel?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: dxxxx
     password: dxxxx13790
   # Redis 配置
@@ -76,6 +76,6 @@ knife4j:
       default:
         api-rule: package
         api-rule-resources:
-          - com.xudu.springbootinit.controller
+          - com.xudu.culturaltravelbackend.controller
 
 
