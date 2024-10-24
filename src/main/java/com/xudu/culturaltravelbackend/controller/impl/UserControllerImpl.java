@@ -1,7 +1,9 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.DeleteRequest;
+import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.controller.UserController;
 import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @className: UserControllerImpl
@@ -73,11 +76,17 @@ public class UserControllerImpl implements UserController {
 
     @Override
     public Result updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request) {
-        return null;
+        Boolean b = userService.updateUser(updateUserRequest, request);
+        if (!b){
+            return Result.error(ErrorCode.SYSTEM_ERROR, "更新失败");
+        }
+        return Result.success("更新成功");
     }
 
     @Override
-    public Result deleteUser(DeleteRequest deleteRequest, HttpServletRequest request) {
-        return null;
+    public Result deleteUser(DeleteBatchRequest deleteBatchRequest, HttpServletRequest request) {
+        List<Long> ids = deleteBatchRequest.getIds();
+        Integer deleteCount = userService.deleteUser(ids);
+        return Result.success(deleteCount);
     }
 }

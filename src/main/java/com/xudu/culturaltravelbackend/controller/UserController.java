@@ -1,5 +1,6 @@
 package com.xudu.culturaltravelbackend.controller;
 
+import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.DeleteRequest;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
@@ -61,11 +62,11 @@ public interface UserController {
      * 更新用户信息
      */
     @PostMapping("/update")
-    Result updateUser(@RequestBody UpdateUserRequest updateUserRequest, HttpServletRequest request);
+    Result updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request);
 
     /**
      * 删除用户
      */
     @PostMapping("/delete")
-    Result deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request);
+    Result deleteUser(@RequestBody DeleteBatchRequest deleteBatchRequest, HttpServletRequest request);
 }

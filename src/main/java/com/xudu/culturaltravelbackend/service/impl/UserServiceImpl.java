@@ -2,26 +2,32 @@ package com.xudu.culturaltravelbackend.service.impl;
 
 import cn.hutool.core.util.ReUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.mapper.UserMapper;
 import com.xudu.culturaltravelbackend.utils.AESUtil;
 import com.xudu.culturaltravelbackend.utils.JWTUtil;
+import com.xudu.culturaltravelbackend.utils.QiniuUtil;
 import com.xudu.culturaltravelbackend.utils.RedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 
 /**
  * @author xudu
@@ -33,6 +39,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private RedisUtil redisUtil;
+    @Autowired
+    private QiniuUtil qiniuUtil;
 
     @Override
     public Long RegisterUser(String userAccount, String userPassword, String checkPassword) throws Exception {
@@ -171,6 +179,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     }
 
+
+
     @Override
     public Boolean isAdmin(HttpServletRequest request) {
         //判断是否有请求
@@ -194,6 +204,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //从redis中获取用户信息
         UserVO redisUserInfo = (UserVO) redisUtil.getRedisContent(token);
         return redisUserInfo.getUserRole() == 1;
+    }
+
+    @Override
+    public Boolean isLogin(HttpServletRequest request) {
+        //请求头中是否有token，token是否在redis中存在
+        String token = request.getHeader("Authorization");
+        //token不能为空且在redis中存在
+        return StringUtils.isNotBlank(token) && redisUtil.isRedisExist(token);
+    }
+
+    @Override
+    public UserVO getLoginUser(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        return (UserVO)redisUtil.getRedisContent(token);
+    }
+
+    @Override
+    public Boolean updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request) {
+        Long id = updateUserRequest.getId();
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(User::getId, id);
+        User dbuser = this.getOne(queryWrapper);
+
+        if (dbuser == null){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "用户不存在");
+        }
+
+        User user = new User();
+
+        BeanUtils.copyProperties(updateUserRequest, user);
+        if (updateUserRequest.getUserImage()!=null){
+            qiniuUtil.deleteFile(user.getUserImage());
+            user.setUserImage(qiniuUtil.upload(updateUserRequest.getUserImage()));
+        }
+        return this.updateById(user);
+
+
+    }
+
+    @Override
+    public Integer deleteUser(List<Long> ids) {
+        //校验id是否合法
+        if (CollectionUtils.isEmpty(ids)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+        ids.forEach(id -> {
+            if (id <= 0) {
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+            }
+        });
+
+        return this.baseMapper.deleteBatchIds(ids);
     }
 }
 

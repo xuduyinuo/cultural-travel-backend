@@ -2,11 +2,13 @@ package com.xudu.culturaltravelbackend.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author xudu
@@ -47,4 +49,38 @@ public interface UserService extends IService<User> {
      * @return 是否为管理员
      */
     Boolean isAdmin(HttpServletRequest request);
+
+    /**
+     * 判断是否登录
+     * @param request 请求
+     * @return 是否登录
+     */
+    Boolean isLogin(HttpServletRequest request);
+
+    /**
+     * 获取登录用户信息
+     * @param request 请求
+     * @return 登录用户信息
+     */
+    UserVO getLoginUser(HttpServletRequest request);
+
+    /**
+     * 更新用户信息
+     * @param updateUserRequest 更新用户信息请求
+     * @param request 请求
+     * @return 是否更新成功
+     */
+    Boolean updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request);
+
+
+    /**
+     * 删除用户
+     *
+     * @param ids 用户id
+     * @return 成功删除用户数量
+     */
+    Integer deleteUser(List<Long> ids);
+
+
+
 }
