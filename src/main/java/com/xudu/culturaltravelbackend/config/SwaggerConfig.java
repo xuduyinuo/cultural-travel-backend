@@ -35,8 +35,8 @@ public class SwaggerConfig {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("xxxx项目")
-                .description("xxxx接口文档")
+                .title("cultural-travel项目")
+                .description("cultural-travel接口文档")
                 .termsOfServiceUrl("https://github.com/xudu")
                 .version("1.0")
                 .build();

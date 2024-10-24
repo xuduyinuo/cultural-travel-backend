@@ -16,15 +16,15 @@ public class RedisUtil {
     /**
      * 写入缓存信息
      */
-    public void setRedisContent(String key, String value) {
+    public void setRedisContent(String key, Object value, long expireTime) {
         redisTemplate.opsForValue().set(key, value);
     }
 
     /**
      * 读取缓存信息
      */
-    public String getRedisContent(String key) {
-        return redisTemplate.opsForValue().get(key).toString();
+    public Object getRedisContent(String key) {
+        return redisTemplate.opsForValue().get(key);
     }
 
     /**
@@ -90,7 +90,7 @@ public class RedisUtil {
     /**
      * 写入缓存信息（包含失效时间）
      */
-    public void setRedisContent(String key, String value, Long expireTime) {
+    public void setRedisContent(String key, Object value, Long expireTime) {
         redisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.SECONDS);
     }
 

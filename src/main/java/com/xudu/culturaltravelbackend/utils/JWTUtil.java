@@ -16,11 +16,11 @@ public class JWTUtil {
 
     private static final String SECRET = "javaabcdefg";
 
-    // 过期时间5分钟
-    private static final long EXPIRE_TIME = 5 * 60 * 1000;
+    // 过期时间10分钟
+    private static final long EXPIRE_TIME = 10 * 60 * 1000;
 
     /**
-     * 生成签名,5min后过期
+     * 生成签名,10min后过期
      *
      * @param userAccount 用户账号
      * @return 加密的token
@@ -51,7 +51,7 @@ public class JWTUtil {
     /**
      * 获得token中的信息无需secret解密也能获得
      *
-     * @return token中包含的用户名
+     * @return token中包含的用户账号
      */
     public static String getUserAccount(String token) {
         DecodedJWT jwt = JWT.decode(token);

@@ -1,9 +1,14 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudu.culturaltravelbackend.common.DeleteRequest;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.controller.UserController;
 import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.utils.RedisUtil;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +40,7 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public Result registerUser(@RequestBody RegisterRequest registerRequest) {
+    public Result registerUser(RegisterRequest registerRequest) throws Exception {
         String userAccount = registerRequest.getUserAccount();
         String userPassword = registerRequest.getUserPassword();
         String checkPassword = registerRequest.getCheckPassword();
@@ -46,7 +51,33 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public Result loginUser(@RequestBody LoginRequest loginRequest) {
+    public Result loginUser(LoginRequest loginRequest) throws Exception {
+
+        String userAccount = loginRequest.getUserAccount();
+        String userPassword = loginRequest.getUserPassword();
+
+        UserVO userVO = userService.LoginUser(userAccount, userPassword);
+        return Result.success(userVO);
+    }
+
+    @Override
+    public Result logoutUser() {
+        return null;
+    }
+
+    @Override
+    public Result searchUserList(SearchUserRequest searchUserRequest, HttpServletRequest request) {
+        Page<UserVO> userVOPage = userService.getUserListByPage(searchUserRequest, request);
+        return Result.success(userVOPage);
+    }
+
+    @Override
+    public Result updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public Result deleteUser(DeleteRequest deleteRequest, HttpServletRequest request) {
         return null;
     }
 }

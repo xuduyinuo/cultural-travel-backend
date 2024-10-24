@@ -1,22 +1,24 @@
-package com.xudu.culturaltravelbackend.model.vo;
+package com.xudu.culturaltravelbackend.model.dto.userdto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.xudu.culturaltravelbackend.common.PageRequest;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @className: UserVO
- * @description: TODO
- * @author: xudu
- * @create: 2024-10-24
+ * 
+ * @TableName user
  */
-@Data
-public class UserVO implements Serializable {
 
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class SearchUserRequest extends PageRequest implements Serializable {
     /**
      * 用户id
      */
@@ -26,8 +28,6 @@ public class UserVO implements Serializable {
      * 用户账号
      */
     private String userAccount;
-
-
 
     /**
      * 用户昵称
@@ -40,11 +40,6 @@ public class UserVO implements Serializable {
     private String userPhone;
 
     /**
-     * 用户头像
-     */
-    private String userImage;
-
-    /**
      * 用户角色 o-普通用户 1-管理员
      */
     private Integer userRole;
@@ -53,21 +48,6 @@ public class UserVO implements Serializable {
      * 用户标签
      */
     private String userTags;
-
-    /**
-     * 创建时间
-     */
-    private Date creatTime;
-
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
-
-    /**
-     * 后端生成的token
-     */
-    private String token;
 
 
     private static final long serialVersionUID = 1L;
