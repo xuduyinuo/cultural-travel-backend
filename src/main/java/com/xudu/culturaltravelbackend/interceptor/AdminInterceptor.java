@@ -25,7 +25,7 @@ public class AdminInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Boolean admin = userService.isAdmin(request);
         if (!admin) {
-            throw new ServiceException(ErrorCode.NO_AUTH);
+            throw new ServiceException(ErrorCode.NO_AUTH_ERROR);
         }
         return true;
     }

@@ -9,6 +9,7 @@ import com.xudu.culturaltravelbackend.model.dto.tagdto.SearchTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.UpdateTagRequest;
 import com.xudu.culturaltravelbackend.model.vo.TagVO;
 import com.xudu.culturaltravelbackend.service.TagService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,8 @@ import java.util.List;
  * @author: xudu
  * @create: 2024-10-24
  */
+
+@CrossOrigin
 @RequestMapping("/tag")
 @RestController
 public class TagControllerImpl implements TagController {

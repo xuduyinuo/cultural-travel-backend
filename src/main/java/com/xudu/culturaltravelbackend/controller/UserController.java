@@ -1,12 +1,16 @@
 package com.xudu.culturaltravelbackend.controller;
 
+import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.DeleteRequest;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,6 +59,7 @@ public interface UserController {
      * @param request 请求
      * @return 用户分页列表
      */
+
     @GetMapping("/search/list/page")
     Result searchUserList(SearchUserRequest searchUserRequest, HttpServletRequest request);
 

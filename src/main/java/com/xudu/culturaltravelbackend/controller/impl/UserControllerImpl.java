@@ -1,10 +1,12 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.DeleteRequest;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.controller.UserController;
 import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
@@ -13,6 +15,7 @@ import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.utils.RedisUtil;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +30,7 @@ import java.util.List;
  * @author: xudu
  * @create: 2024-10-10
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserControllerImpl implements UserController {
@@ -68,6 +72,7 @@ public class UserControllerImpl implements UserController {
         return null;
     }
 
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Override
     public Result searchUserList(SearchUserRequest searchUserRequest, HttpServletRequest request) {
         Page<UserVO> userVOPage = userService.getUserListByPage(searchUserRequest, request);

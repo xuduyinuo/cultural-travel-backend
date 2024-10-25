@@ -7,8 +7,7 @@ import com.xudu.culturaltravelbackend.model.dto.tagdto.AddTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.SearchTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.UpdateTagRequest;
 import com.xudu.culturaltravelbackend.model.entity.Tag;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @className: TagController
@@ -48,6 +47,6 @@ public interface TagController {
      * @param searchTagRequest 搜索标签请求参数
      * @return 标签列表
      */
-    @PostMapping("/search/list")
-    public Result searchTagList(@RequestBody SearchTagRequest searchTagRequest);
+    @GetMapping("/search/list")
+    public Result searchTagList(SearchTagRequest searchTagRequest);
 }

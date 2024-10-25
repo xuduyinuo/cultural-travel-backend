@@ -16,7 +16,7 @@ public class RedisUtil {
     /**
      * 写入缓存信息
      */
-    public void setRedisContent(String key, Object value, long expireTime) {
+    public void setRedisContent(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
     }
 

@@ -15,11 +15,11 @@ public interface UserConstant {
     /**
      * 普通用户
      */
-    Integer DEFAULT_ROLE = 0;
+    int DEFAULT_ROLE = 0;
 
     /**
      * 管理员
      */
-    Integer ADMIN_ROLE = 1;
+    int ADMIN_ROLE = 1;
 
 }

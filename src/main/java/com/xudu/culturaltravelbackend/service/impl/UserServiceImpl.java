@@ -13,17 +13,18 @@ import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.mapper.UserMapper;
-import com.xudu.culturaltravelbackend.utils.AESUtil;
-import com.xudu.culturaltravelbackend.utils.JWTUtil;
-import com.xudu.culturaltravelbackend.utils.QiniuUtil;
-import com.xudu.culturaltravelbackend.utils.RedisUtil;
+import com.xudu.culturaltravelbackend.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,8 +107,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
 
+        /**
+         * 后端在响应头中设置Set-Cookie，将Token作为Cookie值发送给客户端。
+         * 浏览器会自动将收到的Cookie保存，并在后续请求同一域名下的资源时自动携带该Cookie。
+         */
         //生成token
         String token = JWTUtil.sign(user.getUserAccount());
+        // 设置Cookie
+        Cookie cookie = new Cookie("Authorization", token);
+        cookie.setHttpOnly(true); // 增加安全性，防止JavaScript访问
+        cookie.setPath("/");
+        cookie.setMaxAge(3600 * 24 * 7); // 有效期7天
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.addCookie(cookie);
 
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
@@ -116,7 +128,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userVO.setToken(token);
 
         //将token存入redis, 设置过期时间, key 为token, value 为userVO
-        redisUtil.setRedisContent(token, userVO, 5 * 60 * 1000L);
+        redisUtil.setRedisContent(token, userVO, 300L);
+
 
         //返回登陆用户脱敏后的信息
         return userVO;
@@ -189,7 +202,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         //获取token
-        String token = request.getHeader("Authorization");
+        //String token = request.getHeader("Authorization");
+        String token = TokenUtil.getTokenFromCookie(request);
+
 
         //判断token是否为空
         if (StringUtils.isBlank(token)) {
@@ -216,7 +231,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserVO getLoginUser(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
+        //String token = request.getHeader("Authorization");
+        String token = TokenUtil.getTokenFromCookie(request);
         return (UserVO)redisUtil.getRedisContent(token);
     }
 
