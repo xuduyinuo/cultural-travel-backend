@@ -26,7 +26,7 @@ public class TagVO implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime creatTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间

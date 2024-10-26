@@ -64,7 +64,7 @@ qiniu:
   accessKey: 4R1mM_82FX-AeKha20GmmkAXK0uPaar1F97C0xAk
   secretKey: Q23dOBrxFAsQv_m0K9i7dfVdTCAq3UTFA4Dil8Jy
   bucketName: tour-file-storage
-  path: http://shsje6yjh.hb-bkt.clouddn.com/
+  path: http://tour.filestorage.icu/
 
 # 接口文档配置
 knife4j:
