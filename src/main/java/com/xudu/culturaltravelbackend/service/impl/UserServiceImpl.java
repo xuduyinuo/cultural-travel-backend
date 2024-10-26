@@ -224,7 +224,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean isLogin(HttpServletRequest request) {
         //请求头中是否有token，token是否在redis中存在
-        String token = request.getHeader("Authorization");
+        //String token = request.getHeader("Authorization");
+        String token = TokenUtil.getTokenFromCookie(request);
         //token不能为空且在redis中存在
         return StringUtils.isNotBlank(token) && redisUtil.isRedisExist(token);
     }

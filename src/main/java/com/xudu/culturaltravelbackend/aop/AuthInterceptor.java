@@ -38,6 +38,11 @@ public class AuthInterceptor {
         // 获取请求
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+        // 判断是否登录
+        if (!userService.isLogin(request)) {
+            throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+
         // 当前登录用户
         UserVO loginUser = userService.getLoginUser(request);
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
