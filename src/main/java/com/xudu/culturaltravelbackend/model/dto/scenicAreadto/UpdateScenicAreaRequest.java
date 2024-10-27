@@ -8,16 +8,19 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
+import java.nio.channels.MulticastChannel;
 import java.time.LocalDateTime;
 
 /**
  * 
  * @TableName scenic_area
  */
-
 @Data
-public class AddScenicAreaRequest implements Serializable {
-
+public class UpdateScenicAreaRequest implements Serializable {
+    /**
+     * 景区id
+     */
+    private Long id;
 
     /**
      * 景区名称
@@ -42,12 +45,13 @@ public class AddScenicAreaRequest implements Serializable {
     /**
      * 景区图片(多个图片的话转成json字符串存储)
      */
-    private MultipartFile[] scenicAreaImages;
+    // private String scenicAreaImage;
 
     /**
      * 景区语音介绍
      */
     private MultipartFile scenicAreaVoice;
+
 
 
     private static final long serialVersionUID = 1L;

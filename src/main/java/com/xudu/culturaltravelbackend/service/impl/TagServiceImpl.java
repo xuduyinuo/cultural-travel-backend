@@ -51,6 +51,12 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
             if (id <= 0) {
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
             }
+            QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(Tag::getId, id);
+            Tag tag = this.getOne(queryWrapper);
+            if (tag == null){
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, id + "标签不存在");
+            }
         });
         return this.baseMapper.deleteBatchIds(ids);
 

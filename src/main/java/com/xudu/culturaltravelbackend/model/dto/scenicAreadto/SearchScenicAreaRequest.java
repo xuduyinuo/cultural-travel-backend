@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.xudu.culturaltravelbackend.common.PageRequest;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,18 +16,16 @@ import java.time.LocalDateTime;
  */
 
 @Data
-public class AddScenicAreaRequest implements Serializable {
-
+public class SearchScenicAreaRequest extends PageRequest implements Serializable {
+    /**
+     * 景区id
+     */
+    private Long id;
 
     /**
      * 景区名称
      */
     private String scenicAreaName;
-
-    /**
-     * 景区信息（300字以内）
-     */
-    private String scenicAreaInfo;
 
     /**
      * 景区经度
@@ -38,16 +36,6 @@ public class AddScenicAreaRequest implements Serializable {
      * 景区纬度
      */
     private Double scenicAreaLatitude;
-
-    /**
-     * 景区图片(多个图片的话转成json字符串存储)
-     */
-    private MultipartFile[] scenicAreaImages;
-
-    /**
-     * 景区语音介绍
-     */
-    private MultipartFile scenicAreaVoice;
 
 
     private static final long serialVersionUID = 1L;

@@ -273,6 +273,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (id <= 0) {
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
             }
+
+            User dbuser = this.getOne(new QueryWrapper<User>().lambda().eq(User::getId, id));
+            if (dbuser == null){
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, id + "用户不存在");
+            }
         });
 
         return this.baseMapper.deleteBatchIds(ids);

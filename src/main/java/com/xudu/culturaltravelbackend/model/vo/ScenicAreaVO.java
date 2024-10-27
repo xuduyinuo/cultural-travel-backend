@@ -1,14 +1,14 @@
-package com.xudu.culturaltravelbackend.model.dto.scenicAreadto;
+package com.xudu.culturaltravelbackend.model.vo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 
@@ -16,8 +16,11 @@ import java.time.LocalDateTime;
  */
 
 @Data
-public class AddScenicAreaRequest implements Serializable {
-
+public class ScenicAreaVO implements Serializable {
+    /**
+     * 景区id
+     */
+    private Long id;
 
     /**
      * 景区名称
@@ -42,13 +45,22 @@ public class AddScenicAreaRequest implements Serializable {
     /**
      * 景区图片(多个图片的话转成json字符串存储)
      */
-    private MultipartFile[] scenicAreaImages;
+    private List<String> scenicAreaImages;
 
     /**
      * 景区语音介绍
      */
-    private MultipartFile scenicAreaVoice;
+    private String scenicAreaVoice;
 
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
 
     private static final long serialVersionUID = 1L;
 }

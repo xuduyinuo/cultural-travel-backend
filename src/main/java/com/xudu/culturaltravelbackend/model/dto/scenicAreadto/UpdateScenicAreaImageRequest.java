@@ -16,38 +16,21 @@ import java.time.LocalDateTime;
  */
 
 @Data
-public class AddScenicAreaRequest implements Serializable {
-
+public class UpdateScenicAreaImageRequest implements Serializable {
+    /**
+     * 景区id
+     */
+    private Long id;
 
     /**
-     * 景区名称
+     * 图片索引
      */
-    private String scenicAreaName;
-
-    /**
-     * 景区信息（300字以内）
-     */
-    private String scenicAreaInfo;
-
-    /**
-     * 景区经度
-     */
-    private Double scenicAreaLongitude;
-
-    /**
-     * 景区纬度
-     */
-    private Double scenicAreaLatitude;
+    private Long index;
 
     /**
      * 景区图片(多个图片的话转成json字符串存储)
      */
-    private MultipartFile[] scenicAreaImages;
-
-    /**
-     * 景区语音介绍
-     */
-    private MultipartFile scenicAreaVoice;
+    private MultipartFile scenicAreaImage;
 
 
     private static final long serialVersionUID = 1L;

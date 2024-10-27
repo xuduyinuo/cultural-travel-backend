@@ -23,7 +23,7 @@ public interface TagController {
      * @return 成功添加标签的id
      */
     @PostMapping("/add")
-    public Result addTag(@RequestBody AddTagRequest addTagRequest);
+    Result addTag(@RequestBody AddTagRequest addTagRequest);
 
     /**
      * 删除标签
@@ -31,7 +31,7 @@ public interface TagController {
      * @return 删除标签成功数量
      */
     @PostMapping("/delete")
-    public Result deleteTag(@RequestBody DeleteBatchRequest deleteBatchRequest);
+    Result deleteTag(@RequestBody DeleteBatchRequest deleteBatchRequest);
 
     /**
      * 更新标签
@@ -39,7 +39,7 @@ public interface TagController {
      * @return 是否成功
      */
     @PostMapping("/update")
-    public Result updateTag(@RequestBody UpdateTagRequest updateTagRequest);
+    Result updateTag(@RequestBody UpdateTagRequest updateTagRequest);
 
 
     /**
@@ -48,5 +48,5 @@ public interface TagController {
      * @return 标签列表
      */
     @GetMapping("/search/list")
-    public Result searchTagList(SearchTagRequest searchTagRequest);
+    Result searchTagList(SearchTagRequest searchTagRequest);
 }
