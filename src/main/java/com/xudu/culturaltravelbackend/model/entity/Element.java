@@ -5,52 +5,35 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
-
 import lombok.Data;
 
 /**
  * 
- * @TableName scenic_area
+ * @TableName element
  */
-@TableName(value ="scenic_area")
+@TableName(value ="element")
 @Data
-public class ScenicArea implements Serializable {
+public class Element implements Serializable {
     /**
-     * 景区id
+     * 元素id
      */
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
-     * 景区名称
+     * 元素名称
      */
-    private String scenicAreaName;
+    private String elementName;
 
     /**
-     * 景区信息（300字以内）
+     * 元素图片
      */
-    private String scenicAreaInfo;
+    private String elementImage;
 
     /**
-     * 景区经度
+     * 对应标签id
      */
-    private Double scenicAreaLongitude;
-
-    /**
-     * 景区纬度
-     */
-    private Double scenicAreaLatitude;
-
-    /**
-     * 景区图片(多个图片的话转成json字符串存储)
-     */
-    private String scenicAreaImage;
-
-    /**
-     * 景区语音介绍
-     */
-    private String scenicAreaVoice;
+    private Long tagId;
 
     /**
      * 创建时间

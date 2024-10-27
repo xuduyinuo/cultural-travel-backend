@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xudu.culturaltravelbackend.mapper.ElementMapper">
+
+    <resultMap id="BaseResultMap" type="com.xudu.culturaltravelbackend.model.entity.Element">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="elementName" column="elementName" jdbcType="VARCHAR"/>
+            <result property="elementImage" column="elementImage" jdbcType="VARCHAR"/>
+            <result property="tagId" column="tagId" jdbcType="BIGINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,elementName,elementImage,
+        tagId,createTime,updateTime,
+        isDelete
+    </sql>
+</mapper>

@@ -1,8 +1,10 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
+import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.controller.TagController;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.AddTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.SearchTagRequest;
@@ -55,6 +57,7 @@ public class TagControllerImpl implements TagController {
         return Result.success("更新成功");
     }
 
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Override
     public Result searchTagList(SearchTagRequest searchTagRequest) {
         return Result.success(tagService.searchTagList(searchTagRequest));

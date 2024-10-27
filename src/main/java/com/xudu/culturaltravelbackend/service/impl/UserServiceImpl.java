@@ -14,6 +14,7 @@ import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.mapper.UserMapper;
 import com.xudu.culturaltravelbackend.utils.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
  * @description 针对表【user】的数据库操作Service实现
  * @createDate 2024-10-10 22:53:56
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
@@ -113,13 +115,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
          */
         //生成token
         String token = JWTUtil.sign(user.getUserAccount());
+        log.info("token:" + token);
         // 设置Cookie
-        Cookie cookie = new Cookie("Authorization", token);
-        cookie.setHttpOnly(true); // 增加安全性，防止JavaScript访问
-        cookie.setPath("/");
-        cookie.setMaxAge(3600 * 24 * 7); // 有效期7天
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-        response.addCookie(cookie);
+        // Cookie cookie = new Cookie("Authorization", token);
+        // cookie.setHttpOnly(true); // 增加安全性，防止JavaScript访问
+        // cookie.setPath("/");
+        // cookie.setMaxAge(120); // 有效期7天
+        // HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        // response.addCookie(cookie);
 
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
@@ -128,7 +131,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userVO.setToken(token);
 
         //将token存入redis, 设置过期时间, key 为token, value 为userVO
-        redisUtil.setRedisContent(token, userVO, 300L);
+        redisUtil.setRedisContent(token, userVO, 7200L);
 
 
         //返回登陆用户脱敏后的信息
@@ -202,8 +205,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         //获取token
-        //String token = request.getHeader("Authorization");
-        String token = TokenUtil.getTokenFromCookie(request);
+        String token = request.getHeader("Authorization");
+        //String token = TokenUtil.getTokenFromCookie(request);
 
 
         //判断token是否为空
@@ -224,16 +227,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean isLogin(HttpServletRequest request) {
         //请求头中是否有token，token是否在redis中存在
-        //String token = request.getHeader("Authorization");
-        String token = TokenUtil.getTokenFromCookie(request);
+        String token = request.getHeader("Authorization");
+        //String token = TokenUtil.getTokenFromCookie(request);
         //token不能为空且在redis中存在
         return StringUtils.isNotBlank(token) && redisUtil.isRedisExist(token);
     }
 
     @Override
     public UserVO getLoginUser(HttpServletRequest request) {
-        //String token = request.getHeader("Authorization");
-        String token = TokenUtil.getTokenFromCookie(request);
+        String token = request.getHeader("Authorization");
+        //String token = TokenUtil.getTokenFromCookie(request);
         return (UserVO)redisUtil.getRedisContent(token);
     }
 

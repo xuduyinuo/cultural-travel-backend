@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xudu.culturaltravelbackend.mapper.ScenicSpotMapper">
+
+    <resultMap id="BaseResultMap" type="com.xudu.culturaltravelbackend.model.entity.ScenicSpot">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="scenicSpotName" column="scenicSpotName" jdbcType="VARCHAR"/>
+            <result property="scenicSpotImage" column="scenicSpotImage" jdbcType="VARCHAR"/>
+            <result property="scenicSpotInfo" column="scenicSpotInfo" jdbcType="VARCHAR"/>
+            <result property="scenicAreaId" column="scenicAreaId" jdbcType="BIGINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,scenicSpotName,scenicSpotImage,
+        scenicSpotInfo,scenicAreaId,createTime,
+        updateTime,isDelete
+    </sql>
+</mapper>
