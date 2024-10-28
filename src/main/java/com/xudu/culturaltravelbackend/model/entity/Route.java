@@ -5,52 +5,65 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
-
 import lombok.Data;
 
 /**
  * 
- * @TableName scenic_area
+ * @TableName route
  */
-@TableName(value ="scenic_area")
+@TableName(value ="route")
 @Data
-public class ScenicArea implements Serializable {
+public class Route implements Serializable {
     /**
-     * 景区id
+     * 路线id
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 景区名称
+     * 路线名称
      */
-    private String scenicAreaName;
+    private String routeName;
 
     /**
-     * 景区信息（300字以内）
+     * 路线详情
      */
-    private String scenicAreaInfo;
+    private String routeInfo;
 
     /**
-     * 景区经度
+     * 路线图片(多个图片用json字符串表示)
      */
-    private Double scenicAreaLongitude;
+    private String routeImage;
 
     /**
-     * 景区纬度
+     * 路线里程
      */
-    private Double scenicAreaLatitude;
+    private Integer routeMileage;
 
     /**
-     * 景区图片(多个图片的话转成json字符串存储)
+     * 花费时间
      */
-    private String scenicAreaImage;
+    private Integer spendTime;
 
     /**
-     * 景区语音介绍
+     * 适宜时间
      */
-    private String scenicAreaVoice;
+    private String suitableTime;
+
+    /**
+     * 创建线路的用户id
+     */
+    private Long userId;
+
+    /**
+     * 线路审核状态 0-未审核 1-已审核
+     */
+    private Integer routeStatus;
+
+    /**
+     * 线路标签
+     */
+    private String routeTags;
 
     /**
      * 创建时间

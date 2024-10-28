@@ -9,21 +9,26 @@ import lombok.Data;
 
 /**
  * 
- * @TableName tag
+ * @TableName route_scenicarea
  */
-@TableName(value ="tag")
+@TableName(value ="route_scenicarea")
 @Data
-public class Tag implements Serializable {
+public class RouteScenicarea implements Serializable {
     /**
-     * 标签id
+     * 线路-元素关联表id
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 标签名称
+     * 线路id
      */
-    private String tagName;
+    private Long routeId;
+
+    /**
+     * 景区id
+     */
+    private Long scenicAreaId;
 
     /**
      * 创建时间

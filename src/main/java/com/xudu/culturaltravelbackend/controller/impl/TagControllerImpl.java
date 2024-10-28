@@ -57,7 +57,7 @@ public class TagControllerImpl implements TagController {
         return Result.success("更新成功");
     }
 
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     @Override
     public Result searchTagList(SearchTagRequest searchTagRequest) {
         return Result.success(tagService.searchTagList(searchTagRequest));

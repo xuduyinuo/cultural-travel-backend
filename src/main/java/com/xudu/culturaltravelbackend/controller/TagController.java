@@ -1,8 +1,10 @@
 package com.xudu.culturaltravelbackend.controller;
 
+import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.DeleteRequest;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.AddTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.SearchTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.UpdateTagRequest;
@@ -48,5 +50,6 @@ public interface TagController {
      * @return 标签列表
      */
     @GetMapping("/search/list")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     Result searchTagList(SearchTagRequest searchTagRequest);
 }

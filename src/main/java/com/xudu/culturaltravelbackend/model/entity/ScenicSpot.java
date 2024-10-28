@@ -17,7 +17,7 @@ public class ScenicSpot implements Serializable {
     /**
      * 景点id
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xudu.culturaltravelbackend.mapper.RouteMapper">
+
+    <resultMap id="BaseResultMap" type="com.xudu.culturaltravelbackend.model.entity.Route">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="routeName" column="routeName" jdbcType="VARCHAR"/>
+            <result property="routeInfo" column="routeInfo" jdbcType="VARCHAR"/>
+            <result property="routeImage" column="routeImage" jdbcType="VARCHAR"/>
+            <result property="routeMileage" column="routeMileage" jdbcType="INTEGER"/>
+            <result property="spendTime" column="spendTime" jdbcType="INTEGER"/>
+            <result property="suitableTime" column="suitableTime" jdbcType="VARCHAR"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="routeStatus" column="routeStatus" jdbcType="TINYINT"/>
+            <result property="routeTags" column="routeTags" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,routeName,routeInfo,
+        routeImage,routeMileage,spendTime,
+        suitableTime,userId,routeStatus,routeTags,
+        createTime,updateTime,isDelete
+    </sql>
+</mapper>
