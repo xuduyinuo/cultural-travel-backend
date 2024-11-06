@@ -1,9 +1,11 @@
 package com.xudu.culturaltravelbackend.controller;
 
+import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.model.dto.scenicAreadto.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -39,7 +41,7 @@ public interface ScenicAreaController {
      * @return 删除结果
      */
     @PostMapping("/delete")
-    Result deleteScenicArea(List<Long> ids);
+    Result deleteScenicArea(@RequestBody DeleteBatchRequest deleteBatchRequest);
 
     /**
      * 修改景区

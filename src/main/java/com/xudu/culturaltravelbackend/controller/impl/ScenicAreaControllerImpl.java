@@ -2,6 +2,7 @@ package com.xudu.culturaltravelbackend.controller.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudu.culturaltravelbackend.annotation.AuthCheck;
+import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.constant.UserConstant;
@@ -10,6 +11,7 @@ import com.xudu.culturaltravelbackend.model.dto.scenicAreadto.*;
 import com.xudu.culturaltravelbackend.model.vo.ScenicAreaVO;
 import com.xudu.culturaltravelbackend.service.ScenicAreaService;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +33,7 @@ public class ScenicAreaControllerImpl implements ScenicAreaController {
     @Resource
     private ScenicAreaService scenicAreaService;
 
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+
     @Override
     public Result addScenicArea(AddScenicAreaRequest addScenicAreaRequest) {
         Long id = scenicAreaService.saveScenicArea(addScenicAreaRequest);
@@ -45,7 +47,8 @@ public class ScenicAreaControllerImpl implements ScenicAreaController {
     }
 
     @Override
-    public Result deleteScenicArea(List<Long> ids) {
+    public Result deleteScenicArea(@RequestBody DeleteBatchRequest deleteBatchRequest) {
+        List<Long> ids = deleteBatchRequest.getIds();
         Integer i = scenicAreaService.deleteScenicArea(ids);
         return Result.success(i);
     }
