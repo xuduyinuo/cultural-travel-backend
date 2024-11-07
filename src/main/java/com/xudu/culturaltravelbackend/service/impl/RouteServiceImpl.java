@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.RouteConstant;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.routedto.AddRouteRequest;
 import com.xudu.culturaltravelbackend.model.dto.routedto.SearchRouteRequest;
@@ -30,7 +32,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +65,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
 
     @Override
-    public Long addRoute(@RequestBody AddRouteRequest addRouteRequest) {
+    public Long addRoute(AddRouteRequest addRouteRequest) {
         String routeName = addRouteRequest.getRouteName();
         String routeInfo = addRouteRequest.getRouteInfo();
         String routeImages = addRouteRequest.getRouteImages();
@@ -71,8 +76,8 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         String alongElement = addRouteRequest.getAlongElement();
 
 
-        UserVO loginUser = userService.getLoginUser(GetRequestUtil.getRequest());
-        Long userId = loginUser.getId();
+        // UserVO loginUser = userService.getLoginUser(GetRequestUtil.getRequest());
+        // Long userId = loginUser.getId();
 
         String routeTags = addRouteRequest.getRouteTags();
         if (StringUtils.isAnyBlank(routeName, routeInfo, routeImages, suitableTime, alongScenicArea, alongElement, routeTags)) {
@@ -84,15 +89,27 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         Route route = new Route();
         route.setRouteName(routeName);
         route.setRouteInfo(routeInfo);
-        route.setRouteImage(routeImages);
+        Gson gson = new Gson();
+        String[] routeImagesList = routeImages.split(",");
+        String routeImagesListJson = gson.toJson(routeImagesList);
+        System.out.println("==============================="+routeImagesListJson);
+
+
+        route.setRouteImage(routeImagesListJson);
         route.setRouteMileage(routeMileage);
         route.setSpendTime(spendTime);
         route.setSuitableTime(suitableTime);
-        route.setUserId(userId);
+        route.setUserId(1L);
 
         //将标签转换为json字符串存储
-        Gson gson = new Gson();
-        String routeTagsJson = gson.toJson(routeTags);
+
+        // List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {
+        // }.getType());
+        System.out.println("===============================" + routeTags);
+        String[] routeTagsString = routeTags.split(",");
+        List<String> routeTagsList = new ArrayList<>(Arrays.asList(routeTagsString));
+        String routeTagsJson = gson.toJson(routeTagsList);
+        System.out.println("===============================" + routeTagsJson);
         route.setRouteTags(routeTagsJson);
 
         //需要先存储route生成routeid，方便关联表存储
@@ -101,10 +118,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         //处理沿途景区和沿途element
         //添加沿途景区的时候需要判断是否已经存在，如果不存在返回错误
         //Gson gson = new Gson();
-        List<Long> alongScenicAreaList = gson.fromJson(alongScenicArea, new TypeToken<List<Long>>() {
-        }.getType());
-        List<Long> alongElementList = gson.fromJson(alongElement, new TypeToken<List<Long>>() {
-        }.getType());
+
+
+        List<Long> alongScenicAreaList = gson.fromJson(alongScenicArea, new TypeToken<List<Long>>(){}.getType());
+        List<Long> alongElementList = gson.fromJson(alongElement, new TypeToken<List<Long>>(){}.getType());
         for (Long alongScenicAreaId : alongScenicAreaList) {
             RouteScenicarea routeScenicarea = new RouteScenicarea();
             routeScenicarea.setRouteId(route.getId());
@@ -166,28 +183,79 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         if (StringUtils.isNotBlank(suitableTime)) {
             queryWrapper.lambda().like(Route::getSuitableTime, suitableTime);
         }
+        String tags = searchRouteRequest.getRouteTags();
+        if (StringUtils.isNotBlank(tags)) {
+            queryWrapper.lambda().like(Route::getRouteTags, tags);
+        }
 
 
         //获取当前用户
         UserVO loginUser = userService.getLoginUser(GetRequestUtil.getRequest());
+        if (loginUser == null){
+            throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
+        }
         Integer userRole = loginUser.getUserRole();
+
 
         int pageNum = searchRouteRequest.getPageNum();
         int pageSize = searchRouteRequest.getPageSize();
 
-        Page<Route> page = new Page<>(pageNum, pageSize);
-        Page<Route> routePage = this.page(page, queryWrapper);
-        List<Route> routeList = routePage.getRecords();
+        if (userRole == UserConstant.DEFAULT_ROLE) {
+            queryWrapper.lambda().eq(Route::getUserId, loginUser.getId());
+            Page<Route> page = new Page<>(pageNum, pageSize);
+            Page<Route> routePage = this.page(page, queryWrapper);
+            List<Route> routeList = routePage.getRecords();
+
+            //转换
+            List<RouteVO> routeVOList = this.getRouteListToRouteVOList(routeList);
+
+            Page<RouteVO> routeVOPage = new Page<>(routePage.getCurrent(), routePage.getSize(), routePage.getTotal());
+            routeVOPage.setRecords(routeVOList);
+            return routeVOPage;
+        }
+        if (userRole == UserConstant.ADMIN_ROLE){
+
+            Long userId = searchRouteRequest.getUserId();
+            if (userId != null && userId > 0) {
+                queryWrapper.lambda().eq(Route::getUserId, userId);
+            }
+            Integer routeStatus = searchRouteRequest.getRouteStatus();
+            if (routeStatus != null && routeStatus > 0) {
+                queryWrapper.lambda().eq(Route::getRouteStatus, routeStatus);
+            }
+            Page<Route> page = new Page<>(pageNum, pageSize);
+            Page<Route> routePage = this.page(page, queryWrapper);
+            List<Route> routeList = routePage.getRecords();
+
+            //转换
+            List<RouteVO> routeVOList = this.getRouteListToRouteVOList(routeList);
+            Page<RouteVO> routeVOPage = new Page<>(routePage.getCurrent(), routePage.getSize(), routePage.getTotal());
+            routeVOPage.setRecords(routeVOList);
+
+            return routeVOPage;
+        }
+
+        throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
+
+    }
+
+    @Override
+    public List<RouteVO> getRouteListToRouteVOList(List<Route> routeList) {
         List<RouteVO> routeVOList = new ArrayList<>();
         for (Route route : routeList) {
             RouteVO routeVO = new RouteVO();
             BeanUtils.copyProperties(route, routeVO);
 
             //处理routeTags
-            //Gson gson = new Gson();
-            //String routeTags = route.getRouteTags();
-            //List<String> tagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {}.getType());
-            //routeVO.setRouteTags(tagsList);
+            Gson gson = new Gson();
+            String routeImage = route.getRouteImage();
+            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>(){}.getType());
+            routeVO.setRouteImage(routeImageList);
+
+            String routeTags = route.getRouteTags();
+            List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {}.getType());
+
+            routeVO.setRouteTags(routeTagsList);
 
             QueryWrapper<RouteScenicarea> routeScenicAreaQueryWrapper = new QueryWrapper<>();
             routeScenicAreaQueryWrapper.lambda().eq(RouteScenicarea::getRouteId, route.getId());
@@ -221,12 +289,29 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             }
             routeVOList.add(routeVO);
         }
-        Page<RouteVO> routeVOPage = new Page<>(routePage.getCurrent(), routePage.getSize(), routePage.getTotal());
-        routeVOPage.setRecords(routeVOList);
-        return routeVOPage;
+        return routeVOList;
     }
 
-    //throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
+    @Override
+    public Boolean auditRoute(Long id) {
+        if (id == null || id <= 0){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR);
+        }
+        Route dbroute = this.getById(id);
+        if (dbroute == null){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR);
+        }
+        if (dbroute.getRouteStatus() == RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "该路线已审核通过");
+        }
+
+        Route route = new Route();
+        route.setId(id);
+        route.setRouteStatus(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS);
+        return this.updateById(route);
+    }
+
+
 }
 
 

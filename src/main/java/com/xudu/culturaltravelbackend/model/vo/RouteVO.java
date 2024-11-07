@@ -72,7 +72,7 @@ public class RouteVO implements Serializable {
     /**
      * 线路标签
      */
-    private String routeTags;
+    private List<String> routeTags;
 
     /**
      * 创建时间
@@ -84,11 +84,6 @@ public class RouteVO implements Serializable {
      */
     private LocalDateTime updateTime;
 
-    /**
-     * 是否删除 0-存在 1-删除
-     */
-    @TableLogic
-    private Integer isDelete;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

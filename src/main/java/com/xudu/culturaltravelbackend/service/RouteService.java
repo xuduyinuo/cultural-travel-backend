@@ -3,6 +3,7 @@ package com.xudu.culturaltravelbackend.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudu.culturaltravelbackend.model.dto.routedto.AddRouteRequest;
 import com.xudu.culturaltravelbackend.model.dto.routedto.SearchRouteRequest;
+import com.xudu.culturaltravelbackend.model.dto.routedto.UpdateRouteRequest;
 import com.xudu.culturaltravelbackend.model.entity.Route;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xudu.culturaltravelbackend.model.vo.RouteVO;
@@ -24,6 +25,10 @@ public interface RouteService extends IService<Route> {
 
 
     Page<RouteVO> searchRouteListByPage(SearchRouteRequest searchRouteRequest);
+
+    List<RouteVO> getRouteListToRouteVOList(List<Route> routeList);
+
+    Boolean auditRoute(Long id);
 
 
 }

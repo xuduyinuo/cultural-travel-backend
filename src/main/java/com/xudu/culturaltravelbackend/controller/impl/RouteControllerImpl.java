@@ -55,7 +55,11 @@ public class RouteControllerImpl implements RouteController {
 
     @Override
     public Result auditRoute(Long id) {
-        return null;
+        Boolean b = routeService.auditRoute(id);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR);
+        }
+        return Result.success("审核成功");
     }
 
     @Override

@@ -1,20 +1,25 @@
 package com.xudu.culturaltravelbackend.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
+import com.xudu.culturaltravelbackend.mapper.ElementMapper;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.SearchTagRequest;
 import com.xudu.culturaltravelbackend.model.dto.tagdto.UpdateTagRequest;
+import com.xudu.culturaltravelbackend.model.entity.Element;
 import com.xudu.culturaltravelbackend.model.entity.Tag;
 import com.xudu.culturaltravelbackend.model.vo.TagVO;
+import com.xudu.culturaltravelbackend.service.ElementService;
 import com.xudu.culturaltravelbackend.service.TagService;
 import com.xudu.culturaltravelbackend.mapper.TagMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +30,10 @@ import java.util.List;
 */
 @Service
 public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService{
+
+    @Resource
+    private ElementMapper elementMapper;
+
 
     @Override
     public Long addTag(String tagName) {
@@ -42,7 +51,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
     @Override
     public Integer deleteTag(List<Long> ids) {
-
+        //删除tag之前 需要判断该标签下是否存在element，如果存在，需要把该标签下的element一起删除
         //校验id是否合法
         if (CollectionUtils.isEmpty(ids)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -58,6 +67,22 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, id + "标签不存在");
             }
         });
+
+        //删除tag关联的元素
+        QueryWrapper<Element> queryWrapper = new QueryWrapper<>();
+        for (Long id : ids){
+            queryWrapper.lambda().eq(Element::getTagId, id);
+            List<Element> elementList = elementMapper.selectList(queryWrapper);
+            if (CollectionUtils.isEmpty(elementList)){
+                continue;
+            }
+            int count = elementMapper.delete(queryWrapper);
+            if (count == 0){
+                throw new ServiceException(ErrorCode.SYSTEM_ERROR, "删除元素失败");
+            }
+
+        }
+
         return this.baseMapper.deleteBatchIds(ids);
 
     }
