@@ -1,6 +1,7 @@
 package com.xudu.culturaltravelbackend.model.dto.routedto;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.xudu.culturaltravelbackend.common.PageRequest;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,7 +14,7 @@ import java.util.List;
  */
 
 @Data
-public class SearchRouteRequest implements Serializable {
+public class SearchRouteRequest extends PageRequest implements Serializable {
     /**
      * 路线id
      */

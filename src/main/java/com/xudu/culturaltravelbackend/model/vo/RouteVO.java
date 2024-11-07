@@ -50,6 +50,16 @@ public class RouteVO implements Serializable {
     private String suitableTime;
 
     /**
+     * 沿途景区
+     */
+    private List<ScenicAreaVO> alongScenicAreaVO;
+
+    /**
+     * 路线包含的element
+     */
+    private List<ElementVO> alongElementVO;
+
+    /**
      * 创建线路的用户id
      */
     private Long userId;
@@ -62,7 +72,7 @@ public class RouteVO implements Serializable {
     /**
      * 线路标签
      */
-    private List<String> routeTags;
+    private String routeTags;
 
     /**
      * 创建时间

@@ -27,9 +27,9 @@ public class AddRouteRequest implements Serializable {
     private String routeInfo;
 
     /**
-     * 路线图片(多个图片用json字符串表示)
+     * 路线图片url，多个图片用json字符串表示，例如：["xxx.png", "xxxx.jpg"]
      */
-    private MultipartFile[] routeImages;
+    private String routeImages;
 
     /**
      * 路线里程
@@ -47,17 +47,17 @@ public class AddRouteRequest implements Serializable {
     private String suitableTime;
 
     /**
-     * 创建线路的用户id
+     * 沿途景区,json景区id字符串
      */
-    private Long userId;
+    private String alongScenicArea;
 
     /**
-     * 线路审核状态 0-未审核 1-已审核
+     * 沿途element，json 元素id字符串
      */
-    private Integer routeStatus;
+    private String alongElement;
 
     /**
-     * 线路标签
+     * 线路标签例如：["xxx", "xxxx"]
      */
     private String routeTags;
 

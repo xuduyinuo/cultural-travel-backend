@@ -48,9 +48,14 @@ public class UpdateRouteRequest implements Serializable {
     private String suitableTime;
 
     /**
+     * 沿途景区
+     */
+
+
+    /**
      * 创建线路的用户id
      */
-    private Long userId;
+    //private Long userId;
 
     /**
      * 线路审核状态 0-未审核 1-已审核

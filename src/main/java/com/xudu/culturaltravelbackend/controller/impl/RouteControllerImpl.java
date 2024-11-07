@@ -1,12 +1,19 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
+import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.controller.RouteController;
 import com.xudu.culturaltravelbackend.model.dto.routedto.*;
+import com.xudu.culturaltravelbackend.model.vo.RouteVO;
+import com.xudu.culturaltravelbackend.service.RouteService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
 
 /**
  * @ClassName RouteControllerImpl
@@ -19,19 +26,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RouteControllerImpl implements RouteController {
 
+    @Resource
+    private RouteService routeService;
+
     @Override
     public Result addRoute(AddRouteRequest addRouteRequest) {
-        return null;
+        Long routeId = routeService.addRoute(addRouteRequest);
+
+        return Result.success(routeId);
     }
 
     @Override
     public Result deleteRoute(DeleteBatchRequest deleteBatchRequest) {
-        return null;
+        Integer i = routeService.deleteRoute(deleteBatchRequest.getIds());
+        return Result.success(i);
     }
 
     @Override
     public Result searchRouteListByPage(SearchRouteRequest searchRouteRequest) {
-        return null;
+        Page<RouteVO> routeVOPage = routeService.searchRouteListByPage(searchRouteRequest);
+        return Result.success(routeVOPage);
     }
 
     @Override

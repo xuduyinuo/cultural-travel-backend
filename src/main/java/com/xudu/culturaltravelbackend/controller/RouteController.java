@@ -6,6 +6,7 @@ import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * @ClassName RouteController
@@ -19,13 +20,13 @@ public interface RouteController {
      * 添加路线
      */
     @PostMapping("/add")
-    Result addRoute(AddRouteRequest addRouteRequest);
+    Result addRoute(@RequestBody AddRouteRequest addRouteRequest);
 
     /**
      * 删除路线
      */
     @PostMapping("/delete")
-    Result deleteRoute(DeleteBatchRequest deleteBatchRequest);
+    Result deleteRoute(@RequestBody DeleteBatchRequest deleteBatchRequest);
 
 
     /**

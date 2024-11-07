@@ -37,7 +37,7 @@ public interface ScenicAreaController {
 
     /**
      * 删除景区
-     * @param ids 景区id列表
+     * @param deleteBatchRequest 景区id列表
      * @return 删除结果
      */
     @PostMapping("/delete")
