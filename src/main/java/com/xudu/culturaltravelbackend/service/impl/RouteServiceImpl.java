@@ -12,6 +12,7 @@ import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.routedto.AddRouteRequest;
 import com.xudu.culturaltravelbackend.model.dto.routedto.SearchRouteRequest;
+import com.xudu.culturaltravelbackend.model.dto.routedto.UpdateRouteRequest;
 import com.xudu.culturaltravelbackend.model.entity.*;
 import com.xudu.culturaltravelbackend.model.vo.ElementVO;
 import com.xudu.culturaltravelbackend.model.vo.RouteVO;
@@ -246,6 +247,11 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             RouteVO routeVO = new RouteVO();
             BeanUtils.copyProperties(route, routeVO);
 
+            //处理创建人
+            Long userId = route.getUserId();
+            User user = userService.getById(userId);
+            routeVO.setCreateRouteUserAccount(user.getUserAccount());
+
             //处理routeTags
             Gson gson = new Gson();
             String routeImage = route.getRouteImage();
@@ -309,6 +315,40 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         route.setId(id);
         route.setRouteStatus(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS);
         return this.updateById(route);
+    }
+
+    @Override
+    public Boolean updateRoute(UpdateRouteRequest updateRouteRequest) {
+        Long id = updateRouteRequest.getId();
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+        Route dbroute = this.getById(id);
+        if (dbroute == null) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改的线路不存在");
+        }
+
+        Boolean b = userService.isAdmin();
+
+
+
+
+
+
+        // 管理员可以修改一切
+        if (b){
+            Route route = new Route();
+            BeanUtils.copyProperties(updateRouteRequest, route);
+            return this.updateById(route);
+        }else {
+            // 普通用户只能修改自己的且未审核的线路
+            QueryWrapper<Route> queryWrapper = new QueryWrapper<>();
+            Long loginUserId = userService.getLoginUser().getId();
+            queryWrapper.lambda().eq(Route::getUserId, loginUserId).eq(Route::getRouteStatus, RouteConstant.ROUTE_STATUS_NOT_AUDIT);
+            Route route = new Route();
+            BeanUtils.copyProperties(updateRouteRequest, route);
+        }
+
     }
 
 

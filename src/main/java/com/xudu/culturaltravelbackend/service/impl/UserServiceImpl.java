@@ -198,7 +198,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 
     @Override
-    public Boolean isAdmin(HttpServletRequest request) {
+    public Boolean isAdmin() {
+        HttpServletRequest request = GetRequestUtil.getRequest();
+
         //判断是否有请求
         if (request == null) {
             throw new ServiceException(ErrorCode.SYSTEM_ERROR);
@@ -225,7 +227,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Boolean isLogin(HttpServletRequest request) {
+    public Boolean isLogin() {
+        HttpServletRequest request = GetRequestUtil.getRequest();
         //请求头中是否有token，token是否在redis中存在
         String token = request.getHeader("Authorization");
         //String token = TokenUtil.getTokenFromCookie(request);
@@ -234,7 +237,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserVO getLoginUser(HttpServletRequest request) {
+    public UserVO getLoginUser() {
+        HttpServletRequest request = GetRequestUtil.getRequest();
+
         String token = request.getHeader("Authorization");
         //String token = TokenUtil.getTokenFromCookie(request);
         return (UserVO)redisUtil.getRedisContent(token);

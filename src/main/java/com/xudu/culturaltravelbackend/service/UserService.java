@@ -45,24 +45,21 @@ public interface UserService extends IService<User> {
 
     /**
      * 判断是否为管理员
-     * @param request 请求
      * @return 是否为管理员
      */
-    Boolean isAdmin(HttpServletRequest request);
+    Boolean isAdmin();
 
     /**
      * 判断是否登录
-     * @param request 请求
      * @return 是否登录
      */
-    Boolean isLogin(HttpServletRequest request);
+    Boolean isLogin();
 
     /**
      * 获取登录用户信息
-     * @param request 请求
      * @return 登录用户信息
      */
-    UserVO getLoginUser(HttpServletRequest request);
+    UserVO getLoginUser();
 
     /**
      * 更新用户信息

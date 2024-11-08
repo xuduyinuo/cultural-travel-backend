@@ -10,7 +10,7 @@ public interface RouteConstant {
     /**
      * 普通用户
      */
-    int ROUTE_STATUS_DEFAULT = 0;
+    int ROUTE_STATUS_NOT_AUDIT = 0;
 
     /**
      * 管理员

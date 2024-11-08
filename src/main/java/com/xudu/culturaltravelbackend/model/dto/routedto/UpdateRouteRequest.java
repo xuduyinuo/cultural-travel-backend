@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class UpdateRouteRequest implements Serializable {
+
     /**
      * 路线id
      */
@@ -53,19 +54,19 @@ public class UpdateRouteRequest implements Serializable {
 
 
     /**
-     * 创建线路的用户id
+     * 创建线路的用户id--不能修改
      */
     //private Long userId;
 
     /**
      * 线路审核状态 0-未审核 1-已审核
      */
-    private Integer routeStatus;
+    //private Integer routeStatus;
 
     /**
      * 线路标签
      */
-    private String routeTags;
+    //private String routeTags;
 
 
     private static final long serialVersionUID = 1L;

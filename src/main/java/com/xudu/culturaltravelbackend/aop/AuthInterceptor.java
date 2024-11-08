@@ -36,15 +36,15 @@ public class AuthInterceptor {
     public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
         Integer mustRole = authCheck.mustRole();
         // 获取请求
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+        //RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        //HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 判断是否登录
-        if (!userService.isLogin(request)) {
+        if (!userService.isLogin()) {
             throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
         }
 
         // 当前登录用户
-        UserVO loginUser = userService.getLoginUser(request);
+        UserVO loginUser = userService.getLoginUser();
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         // 不需要权限，放行
         if (mustRoleEnum == null) {

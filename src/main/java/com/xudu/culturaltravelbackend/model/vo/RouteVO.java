@@ -62,7 +62,7 @@ public class RouteVO implements Serializable {
     /**
      * 创建线路的用户id
      */
-    private Long userId;
+    private String createRouteUserAccount;
 
     /**
      * 线路审核状态 0-未审核 1-已审核
