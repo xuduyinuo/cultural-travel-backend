@@ -67,7 +67,7 @@ public interface UserController {
      * 更新用户信息
      */
     @PostMapping("/update")
-    Result updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request);
+    Result updateUser(UpdateUserRequest updateUserRequest);
 
     /**
      * 删除用户

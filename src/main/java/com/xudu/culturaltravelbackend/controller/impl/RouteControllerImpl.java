@@ -7,13 +7,16 @@ import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.controller.RouteController;
 import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import com.xudu.culturaltravelbackend.model.vo.RouteVO;
+import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.RouteService;
+import com.xudu.culturaltravelbackend.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @ClassName RouteControllerImpl
@@ -28,6 +31,10 @@ public class RouteControllerImpl implements RouteController {
 
     @Resource
     private RouteService routeService;
+
+
+    @Resource
+    private UserService userService;
 
     @Override
     public Result addRoute(AddRouteRequest addRouteRequest) {
@@ -75,5 +82,14 @@ public class RouteControllerImpl implements RouteController {
     @Override
     public Result updateRouteImage(UpdateRouteImageRequest updateRouteImageRequest) {
         return null;
+    }
+
+    @Override
+    public Result recommendRouteByUserTags() {
+        long num = 5;
+        UserVO loginUser = userService.getLoginUser();
+        List<RouteVO> routeVOS = routeService.recommendRouteByUserTags(num, loginUser);
+        return Result.success(routeVOS);
+
     }
 }

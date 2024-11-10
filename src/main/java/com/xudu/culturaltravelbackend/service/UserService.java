@@ -1,8 +1,7 @@
 package com.xudu.culturaltravelbackend.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.*;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
@@ -64,10 +63,9 @@ public interface UserService extends IService<User> {
     /**
      * 更新用户信息
      * @param updateUserRequest 更新用户信息请求
-     * @param request 请求
      * @return 是否更新成功
      */
-    Boolean updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request);
+    Boolean updateUser(UpdateUserRequest updateUserRequest);
 
 
     /**
@@ -77,6 +75,22 @@ public interface UserService extends IService<User> {
      * @return 成功删除用户数量
      */
     Integer deleteUser(List<Long> ids);
+
+
+    /**
+     * 添加用户标签
+     */
+    Boolean addUserTags(AddUserTagsRequest addUserTagsRequest);
+
+    /**
+     * 删除用户标签
+     */
+    Boolean deleteUserTags(DeleteUserTagsRequest deleteUserTagsRequest);
+
+    /**
+     * 更新用户标签
+     */
+    Boolean updateUserTags(UpdateUserTagsRequest updateUserTagsRequest);
 
 
 

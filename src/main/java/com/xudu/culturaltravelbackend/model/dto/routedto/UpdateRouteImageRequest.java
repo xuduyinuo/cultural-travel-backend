@@ -17,7 +17,6 @@ public class UpdateRouteImageRequest implements Serializable {
     /**
      * 路线id
      */
-
     private Long id;
 
     /**
@@ -28,7 +27,7 @@ public class UpdateRouteImageRequest implements Serializable {
     /**
      * 路线图片(多个图片用json字符串表示)
      */
-    private MultipartFile routeImage;
+    private String routeImageUrl;
 
 
     private static final long serialVersionUID = 1L;

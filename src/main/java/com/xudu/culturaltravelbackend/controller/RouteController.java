@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @ClassName RouteController
  * @Description
@@ -69,5 +71,11 @@ public interface RouteController {
      */
     @PostMapping("/update/image")
     Result updateRouteImage(UpdateRouteImageRequest updateRouteImageRequest);
+
+    /**
+     * 根据标签推荐路线
+     */
+    @GetMapping("/recommend")
+    Result recommendRouteByUserTags();
 
 }

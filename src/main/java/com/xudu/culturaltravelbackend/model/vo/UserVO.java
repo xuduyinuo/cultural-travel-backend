@@ -13,6 +13,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @className: UserVO
@@ -58,7 +59,7 @@ public class UserVO implements Serializable {
     /**
      * 用户标签
      */
-    private String userTags;
+    private List<String> userTags;
 
     /**
      * 创建时间

@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
-import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.*;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
@@ -126,6 +127,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
+        String userTags = user.getUserTags();
+        Gson gson = new Gson();
+        List<String> userTagsList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+        }.getType());
+        userVO.setUserTags(userTagsList);
 
         //将token返回赋值给userVO
         userVO.setToken(token);
@@ -171,10 +177,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.lambda().eq(User::getUserRole, userRole);
         }
         //todo 待添加用户标签查询
-        //String userTags = searchUserRequest.getUserTags();
-        //if (StringUtils.isNotBlank(userTags)) {
-        //    queryWrapper.lambda().like(User::getUserTags, userTags);
-        //}
+        String userTags = searchUserRequest.getUserTags();
+        if (StringUtils.isNotBlank(userTags)) {
+           queryWrapper.lambda().like(User::getUserTags, userTags);
+        }
         int pageNum = searchUserRequest.getPageNum();
         int pageSize = searchUserRequest.getPageSize();
 
@@ -183,9 +189,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         Page<UserVO> userVOPage = new Page<>(userPage.getCurrent(), userPage.getSize(), userPage.getTotal());
         ArrayList<UserVO> userVOList = new ArrayList<>();
+        Gson gson = new Gson();
         userPage.getRecords().forEach(user -> {
             UserVO userVO = new UserVO();
             BeanUtils.copyProperties(user, userVO);
+            String jsonUserTags = user.getUserTags();
+            List<String> userTagsList = gson.fromJson(jsonUserTags, new TypeToken<List<String>>() {
+            }.getType());
+            userVO.setUserTags(userTagsList);
             userVOList.add(userVO);
         });
         userVOPage.setRecords(userVOList);
@@ -200,11 +211,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean isAdmin() {
         HttpServletRequest request = GetRequestUtil.getRequest();
-
-        //判断是否有请求
-        if (request == null) {
-            throw new ServiceException(ErrorCode.SYSTEM_ERROR);
-        }
 
         //获取token
         String token = request.getHeader("Authorization");
@@ -246,7 +252,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Boolean updateUser(UpdateUserRequest updateUserRequest, HttpServletRequest request) {
+    public Boolean updateUser(UpdateUserRequest updateUserRequest) {
         Long id = updateUserRequest.getId();
         if (id == null || id <= 0) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
@@ -289,6 +295,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         });
 
         return this.baseMapper.deleteBatchIds(ids);
+    }
+
+    @Override
+    public Boolean addUserTags(AddUserTagsRequest addUserTagsRequest) {
+        return null;
+    }
+
+    @Override
+    public Boolean deleteUserTags(DeleteUserTagsRequest deleteUserTagsRequest) {
+        return null;
+    }
+
+    @Override
+    public Boolean updateUserTags(UpdateUserTagsRequest updateUserTagsRequest) {
+        return null;
     }
 }
 

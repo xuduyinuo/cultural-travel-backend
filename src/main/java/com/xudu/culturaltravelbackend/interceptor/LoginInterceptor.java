@@ -24,7 +24,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Boolean login = userService.isLogin(request);
+        Boolean login = userService.isLogin();
         if (!login) {
             throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
         }

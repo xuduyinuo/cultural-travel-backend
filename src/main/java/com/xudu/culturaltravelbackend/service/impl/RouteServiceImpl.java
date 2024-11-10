@@ -6,13 +6,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
-import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.constant.RouteConstant;
 import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
-import com.xudu.culturaltravelbackend.model.dto.routedto.AddRouteRequest;
-import com.xudu.culturaltravelbackend.model.dto.routedto.SearchRouteRequest;
-import com.xudu.culturaltravelbackend.model.dto.routedto.UpdateRouteRequest;
+import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import com.xudu.culturaltravelbackend.model.entity.*;
 import com.xudu.culturaltravelbackend.model.vo.ElementVO;
 import com.xudu.culturaltravelbackend.model.vo.RouteVO;
@@ -21,22 +18,17 @@ import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.*;
 import com.xudu.culturaltravelbackend.mapper.RouteMapper;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
-import com.xudu.culturaltravelbackend.utils.GetRequestUtil;
+import com.xudu.culturaltravelbackend.utils.TagMatchAlgorithmUtil;
+import javafx.util.Pair;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,7 +85,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         Gson gson = new Gson();
         String[] routeImagesList = routeImages.split(",");
         String routeImagesListJson = gson.toJson(routeImagesList);
-        System.out.println("==============================="+routeImagesListJson);
+        System.out.println("===============================" + routeImagesListJson);
 
 
         route.setRouteImage(routeImagesListJson);
@@ -102,7 +94,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         route.setSuitableTime(suitableTime);
         route.setUserId(1L);
 
-        //将标签转换为json字符串存储
+        // 将标签转换为json字符串存储
 
         // List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {
         // }.getType());
@@ -113,16 +105,18 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         System.out.println("===============================" + routeTagsJson);
         route.setRouteTags(routeTagsJson);
 
-        //需要先存储route生成routeid，方便关联表存储
+        // 需要先存储route生成routeid，方便关联表存储
         this.save(route);
 
-        //处理沿途景区和沿途element
-        //添加沿途景区的时候需要判断是否已经存在，如果不存在返回错误
-        //Gson gson = new Gson();
+        // 处理沿途景区和沿途element
+        // 添加沿途景区的时候需要判断是否已经存在，如果不存在返回错误
+        // Gson gson = new Gson();
 
 
-        List<Long> alongScenicAreaList = gson.fromJson(alongScenicArea, new TypeToken<List<Long>>(){}.getType());
-        List<Long> alongElementList = gson.fromJson(alongElement, new TypeToken<List<Long>>(){}.getType());
+        List<Long> alongScenicAreaList = gson.fromJson(alongScenicArea, new TypeToken<List<Long>>() {
+        }.getType());
+        List<Long> alongElementList = gson.fromJson(alongElement, new TypeToken<List<Long>>() {
+        }.getType());
         for (Long alongScenicAreaId : alongScenicAreaList) {
             RouteScenicarea routeScenicarea = new RouteScenicarea();
             routeScenicarea.setRouteId(route.getId());
@@ -142,10 +136,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
     @Override
     public Integer deleteRoute(List<Long> ids) {
-        //检验id是否合法
+        // 检验id是否合法
         DeleteUtil.checkId(ids);
 
-        //删除和路线关联的景区和element
+        // 删除和路线关联的景区和element
         QueryWrapper<RouteElement> queryWrapperRouteElement = new QueryWrapper<>();
         QueryWrapper<RouteScenicarea> queryWrapperRouteScenicarea = new QueryWrapper<>();
 
@@ -159,10 +153,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
     @Override
     public Page<RouteVO> searchRouteListByPage(SearchRouteRequest searchRouteRequest) {
-        //管理员模式下，可以查看所有路线，普通用户模式下，只能查看自己创建的路线
+        // 管理员模式下，可以查看所有路线，普通用户模式下，只能查看自己创建的路线
 
 
-        //条件组合查询
+        // 条件组合查询
         QueryWrapper<Route> queryWrapper = new QueryWrapper<>();
         Long id = searchRouteRequest.getId();
         if (id != null && id > 0) {
@@ -190,9 +184,9 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         }
 
 
-        //获取当前用户
-        UserVO loginUser = userService.getLoginUser(GetRequestUtil.getRequest());
-        if (loginUser == null){
+        // 获取当前用户
+        UserVO loginUser = userService.getLoginUser();
+        if (loginUser == null) {
             throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
         }
         Integer userRole = loginUser.getUserRole();
@@ -207,14 +201,14 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             Page<Route> routePage = this.page(page, queryWrapper);
             List<Route> routeList = routePage.getRecords();
 
-            //转换
+            // 转换
             List<RouteVO> routeVOList = this.getRouteListToRouteVOList(routeList);
 
             Page<RouteVO> routeVOPage = new Page<>(routePage.getCurrent(), routePage.getSize(), routePage.getTotal());
             routeVOPage.setRecords(routeVOList);
             return routeVOPage;
         }
-        if (userRole == UserConstant.ADMIN_ROLE){
+        if (userRole == UserConstant.ADMIN_ROLE) {
 
             Long userId = searchRouteRequest.getUserId();
             if (userId != null && userId > 0) {
@@ -228,7 +222,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             Page<Route> routePage = this.page(page, queryWrapper);
             List<Route> routeList = routePage.getRecords();
 
-            //转换
+            // 转换
             List<RouteVO> routeVOList = this.getRouteListToRouteVOList(routeList);
             Page<RouteVO> routeVOPage = new Page<>(routePage.getCurrent(), routePage.getSize(), routePage.getTotal());
             routeVOPage.setRecords(routeVOList);
@@ -247,19 +241,21 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             RouteVO routeVO = new RouteVO();
             BeanUtils.copyProperties(route, routeVO);
 
-            //处理创建人
+            // 处理创建人
             Long userId = route.getUserId();
             User user = userService.getById(userId);
             routeVO.setCreateRouteUserAccount(user.getUserAccount());
 
-            //处理routeTags
+            // 处理routeTags
             Gson gson = new Gson();
             String routeImage = route.getRouteImage();
-            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>(){}.getType());
+            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>() {
+            }.getType());
             routeVO.setRouteImage(routeImageList);
 
             String routeTags = route.getRouteTags();
-            List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {}.getType());
+            List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {
+            }.getType());
 
             routeVO.setRouteTags(routeTagsList);
 
@@ -300,14 +296,14 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
     @Override
     public Boolean auditRoute(Long id) {
-        if (id == null || id <= 0){
+        if (id == null || id <= 0) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
         Route dbroute = this.getById(id);
-        if (dbroute == null){
+        if (dbroute == null) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
-        if (dbroute.getRouteStatus() == RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS){
+        if (dbroute.getRouteStatus() == RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "该路线已审核通过");
         }
 
@@ -324,32 +320,161 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
         }
         Route dbroute = this.getById(id);
-        if (dbroute == null) {
+        if (ObjectUtils.isEmpty(dbroute)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改的线路不存在");
         }
 
-        Boolean b = userService.isAdmin();
-
-
-
-
+        Boolean isAdmin = userService.isAdmin();
 
 
         // 管理员可以修改一切
-        if (b){
+        if (isAdmin) {
             Route route = new Route();
             BeanUtils.copyProperties(updateRouteRequest, route);
             return this.updateById(route);
-        }else {
+        } else {
             // 普通用户只能修改自己的且未审核的线路
-            QueryWrapper<Route> queryWrapper = new QueryWrapper<>();
             Long loginUserId = userService.getLoginUser().getId();
-            queryWrapper.lambda().eq(Route::getUserId, loginUserId).eq(Route::getRouteStatus, RouteConstant.ROUTE_STATUS_NOT_AUDIT);
+            Long dbrouteUserId = dbroute.getUserId();
+            if (!(dbrouteUserId == null || !dbrouteUserId.equals(loginUserId))) {
+                throw new ServiceException(ErrorCode.NO_AUTH_ERROR);
+            }
+            Integer dbRouteStatus = dbroute.getRouteStatus();
+            if (dbRouteStatus == null || dbRouteStatus.equals(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS)){
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, "该路线已审核通过，无法修改");
+            };
             Route route = new Route();
             BeanUtils.copyProperties(updateRouteRequest, route);
+            return this.updateById(route);
         }
 
     }
+
+    @Override
+    public Boolean updateRouteImage(UpdateRouteImageRequest updateRouteImageRequest) {
+        Long id = updateRouteImageRequest.getId();
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+        Route dbroute = this.getById(id);
+        if (ObjectUtils.isEmpty(dbroute)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改图片的线路不存在");
+        }
+
+        String routeImageUrl = updateRouteImageRequest.getRouteImageUrl();
+        if (StringUtils.isBlank(routeImageUrl)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片为空");
+        }
+        String dbRouteImage = dbroute.getRouteImage();
+        Gson gson = new Gson();
+        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
+        Long imageIndex = updateRouteImageRequest.getIndex();
+        if (imageIndex == null || imageIndex < 0 || imageIndex >= imageList.size()) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片索引错误");
+        }
+        imageList.set(imageIndex.intValue(), routeImageUrl);
+        String jsonRouteImage = gson.toJson(imageList);
+
+        Route route = new Route();
+        route.setId(id);
+        route.setRouteImage(jsonRouteImage);
+        return this.updateById(route);
+    }
+
+    @Override
+    public Boolean addRouteImage(AddRouteImageRequest addRouteImageRequest) {
+        Long id = addRouteImageRequest.getId();
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+        Route dbroute = this.getById(id);
+        if (ObjectUtils.isEmpty(dbroute)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "添加图片的线路不存在");
+        }
+        String routeImageUrl = addRouteImageRequest.getRouteImageUrl();
+        if (StringUtils.isBlank(routeImageUrl)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片为空");
+        }
+        String dbRouteImage = dbroute.getRouteImage();
+        Gson gson = new Gson();
+        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
+        imageList.add(routeImageUrl);
+        String jsonRouteImage = gson.toJson(imageList);
+        Route route = new Route();
+        route.setId(id);
+        route.setRouteImage(jsonRouteImage);
+        return this.updateById(route);
+    }
+
+    @Override
+    public Boolean deleteRouteImage(DeleteRouteImageRequest deleteRouteImageRequest) {
+        Long id = deleteRouteImageRequest.getId();
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+        Route dbroute = this.getById(id);
+        if (ObjectUtils.isEmpty(dbroute)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "删除图片的线路不存在");
+        }
+
+        String dbRouteImage = dbroute.getRouteImage();
+        Gson gson = new Gson();
+        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
+        Long imageIndex = deleteRouteImageRequest.getIndex();
+        if ((imageIndex == null) || (imageIndex < 0)|| (imageIndex >= imageList.size())) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片索引错误");
+        }
+        imageList.remove(imageIndex.intValue());
+        String jsonRouteImage = gson.toJson(imageList);
+        Route route = new Route();
+        route.setId(id);
+        route.setRouteImage(jsonRouteImage);
+        return this.updateById(route);
+    }
+
+    @Override
+    public List<RouteVO> recommendRouteByUserTags(long num, UserVO loginUser) {
+        QueryWrapper<Route> queryWrapper = new QueryWrapper<>();
+        //queryWrapper.select("id", "routeTags");
+        queryWrapper.isNotNull("routeTags");
+        List<Route> routeList = this.list(queryWrapper);
+
+        List<String> userTagsList = loginUser.getUserTags();
+        // String userTags = loginUser.getUserTags();
+        Gson gson = new Gson();
+        // List<String> userTagsList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+        // }.getType());
+
+        //依次计算用户标签和路线标签之间的相似度
+        List<Pair<Route, Long>> list = new ArrayList<>();
+        for (Route route : routeList) {
+            String routeTags = route.getRouteTags();
+            if (StringUtils.isBlank(routeTags)) {
+                continue;
+            }
+            List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {
+            }.getType());
+            long similarity = TagMatchAlgorithmUtil.minDistance(userTagsList, routeTagsList);
+            list.add(new Pair<>(route, similarity));
+
+        }
+
+        //按相似度排序
+        List<Pair<Route, Long>> topRoutePairList = list.stream()
+                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .limit(num)
+                .collect(Collectors.toList());
+
+
+        //原本的顺序列表
+        //List<Route> topRouteList = topRoutePairList.stream().map(Pair::getKey).collect(Collectors.toList());
+        ArrayList<Route> finalRouteList = new ArrayList<>();
+        for (Pair<Route, Long> pair : topRoutePairList) {
+            finalRouteList.add(pair.getKey());
+        }
+        return this.getRouteListToRouteVOList(finalRouteList);
+    }
+
 
 
 }

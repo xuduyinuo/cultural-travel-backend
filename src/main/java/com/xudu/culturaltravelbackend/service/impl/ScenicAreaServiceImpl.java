@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.scenicAreadto.*;
@@ -127,7 +128,7 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         scenicAreaList.forEach(scenicArea -> {
             ScenicAreaVO scenicAreaVO = new ScenicAreaVO();
             Gson gson = new Gson();
-            scenicAreaVO.setScenicAreaImages(gson.fromJson(scenicArea.getScenicAreaImage(), List.class));
+            scenicAreaVO.setScenicAreaImages(gson.fromJson(scenicArea.getScenicAreaImage(), new TypeToken<List<String>>(){}.getType()));
             BeanUtils.copyProperties(scenicArea, scenicAreaVO);
             scenicAreaVOList.add(scenicAreaVO);
         });
@@ -137,7 +138,6 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
 
     @Override
     public Boolean updateScenicArea(UpdateScenicAreaRequest updateScenicAreaRequest) {
-
 
         Long id = updateScenicAreaRequest.getId();
         if (id == null || id <= 0) {
@@ -187,7 +187,7 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         }
         String scenicAreaImage = dbScenicArea.getScenicAreaImage();
         Gson gson = new Gson();
-        List<String> imageList = gson.fromJson(scenicAreaImage, List.class);
+        List<String> imageList = gson.fromJson(scenicAreaImage, new TypeToken<List<String>>(){}.getType());
         qiniuUtil.deleteFile(imageList.get(imageIndex.intValue()));
         imageList.set(imageIndex.intValue(), qiniuUtil.upload(updateScenicAreaImageRequest.getScenicAreaImage()));
         String jsonScenicAreaImage = gson.toJson(imageList);
@@ -213,7 +213,7 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         }
         String scenicAreaImage = dbScenicArea.getScenicAreaImage();
         Gson gson = new Gson();
-        List<String> imageList = gson.fromJson(scenicAreaImage, List.class);
+        List<String> imageList = gson.fromJson(scenicAreaImage, new TypeToken<List<String>>(){}.getType());
         qiniuUtil.deleteFile(imageList.get(imageIndex.intValue()));
         imageList.remove(imageIndex.intValue());
         String jsonScenicAreaImage = gson.toJson(imageList);
@@ -237,7 +237,7 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         ScenicArea dbScenicArea = this.getOne(queryWrapper);
         String dbScenicAreaScenicAreaImage = dbScenicArea.getScenicAreaImage();
         Gson gson = new Gson();
-        List<String> imageList = gson.fromJson(dbScenicAreaScenicAreaImage, List.class);
+        List<String> imageList = gson.fromJson(dbScenicAreaScenicAreaImage, new TypeToken<List<String>>(){}.getType());
         imageList.add(qiniuUtil.upload(scenicAreaImage));
         String jsonScenicAreaImage = gson.toJson(imageList);
         return this.update().set("scenicAreaImage", jsonScenicAreaImage).eq("id", id).update();

@@ -1,12 +1,11 @@
 package com.xudu.culturaltravelbackend.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xudu.culturaltravelbackend.model.dto.routedto.AddRouteRequest;
-import com.xudu.culturaltravelbackend.model.dto.routedto.SearchRouteRequest;
-import com.xudu.culturaltravelbackend.model.dto.routedto.UpdateRouteRequest;
+import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import com.xudu.culturaltravelbackend.model.entity.Route;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xudu.culturaltravelbackend.model.vo.RouteVO;
+import com.xudu.culturaltravelbackend.model.vo.UserVO;
 
 import java.util.List;
 
@@ -59,6 +58,29 @@ public interface RouteService extends IService<Route> {
      * @return
      */
     Boolean updateRoute(UpdateRouteRequest updateRouteRequest);
+
+
+    /**
+     * 修改路线图片中的某一个
+     */
+    Boolean updateRouteImage(UpdateRouteImageRequest updateRouteImageRequest);
+
+    /**
+     * 添加路线图片
+     */
+    Boolean addRouteImage(AddRouteImageRequest addRouteImageRequest);
+
+    /**
+     * 删除路线图片中的某一张
+     */
+    Boolean deleteRouteImage(DeleteRouteImageRequest deleteRouteImageRequest);
+
+    /**
+     * 根据用户标签推荐路线
+     *
+     * @return 路线VOs
+     */
+    List<RouteVO> recommendRouteByUserTags(long num, UserVO loginUser);
 
 
 }
