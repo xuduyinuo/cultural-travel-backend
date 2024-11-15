@@ -9,6 +9,9 @@ import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +26,10 @@ import javax.servlet.http.HttpServletRequest;
  * @author: xudu
  * @create: 2024-10-10
  */
+@Api(tags = "用户模块")
 public interface UserController {
 
+    @ApiOperation("testhello")
     @GetMapping("/hello")
     Result hello();
 
@@ -35,6 +40,7 @@ public interface UserController {
      * @return 注册成功用户id
      * @throws Exception 加解密抛出异常
      */
+    @ApiOperation("注册用户")
     @PostMapping("/register")
     Result registerUser(@RequestBody RegisterRequest registerRequest) throws Exception;
 
@@ -44,6 +50,7 @@ public interface UserController {
      * @return 登录成功用户信息
      * @throws Exception 加解密抛出异常
      */
+    @ApiOperation("登录用户")
     @PostMapping("/login")
     Result loginUser(@RequestBody LoginRequest loginRequest) throws Exception;
 
@@ -51,6 +58,7 @@ public interface UserController {
      * 退出登陆
      * @return 退出成功或失败信息
      */
+    @ApiOperation("退出登陆")
     @PostMapping("/logout")
     Result logoutUser();
 
@@ -59,19 +67,21 @@ public interface UserController {
      * @param request 请求
      * @return 用户分页列表
      */
-
+    @ApiOperation("搜索用户分页列表")
     @GetMapping("/search/list/page")
     Result searchUserList(SearchUserRequest searchUserRequest, HttpServletRequest request);
 
     /**
      * 更新用户信息
      */
+    @ApiOperation("更新用户信息")
     @PostMapping("/update")
     Result updateUser(UpdateUserRequest updateUserRequest);
 
     /**
      * 删除用户
      */
+    @ApiOperation("删除用户")
     @PostMapping("/delete")
     Result deleteUser(@RequestBody DeleteBatchRequest deleteBatchRequest, HttpServletRequest request);
 }

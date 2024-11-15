@@ -9,6 +9,7 @@ import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.constant.RouteConstant;
 import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
+import com.xudu.culturaltravelbackend.mapper.ElementMapper;
 import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import com.xudu.culturaltravelbackend.model.entity.*;
 import com.xudu.culturaltravelbackend.model.vo.ElementVO;
@@ -24,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -54,56 +56,64 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
     private ScenicAreaService scenicAreaService;
 
     @Resource
-    private ElementService elementService;
+    private ElementMapper elementMapper;
+    @Autowired
+    private Gson gson;
 
 
     @Override
     public Long addRoute(AddRouteRequest addRouteRequest) {
+
         String routeName = addRouteRequest.getRouteName();
         String routeInfo = addRouteRequest.getRouteInfo();
-        String routeImages = addRouteRequest.getRouteImages();
+        List<String> routeImages = addRouteRequest.getRouteImages();
         Integer routeMileage = addRouteRequest.getRouteMileage();
         Integer spendTime = addRouteRequest.getSpendTime();
         String suitableTime = addRouteRequest.getSuitableTime();
-        String alongScenicArea = addRouteRequest.getAlongScenicArea();
-        String alongElement = addRouteRequest.getAlongElement();
+        List<Long> alongScenicArea = addRouteRequest.getAlongScenicArea();
+        List<Long> alongElementList = addRouteRequest.getAlongElement();
+
 
 
         // UserVO loginUser = userService.getLoginUser(GetRequestUtil.getRequest());
         // Long userId = loginUser.getId();
 
-        String routeTags = addRouteRequest.getRouteTags();
-        if (StringUtils.isAnyBlank(routeName, routeInfo, routeImages, suitableTime, alongScenicArea, alongElement, routeTags)) {
+        List<String> routeTags = addRouteRequest.getRouteTags();
+        if (StringUtils.isAnyBlank(routeName, routeInfo,  suitableTime)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
         if (routeMileage == null || spendTime == null) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
+
+        if (CollectionUtils.isEmpty(routeImages)|| CollectionUtils.isEmpty(alongScenicArea)|| CollectionUtils.isEmpty(alongElementList)|| CollectionUtils.isEmpty(routeTags)){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片或景区或标签元素或路线标签参数为空");
+        }
+
+
         Route route = new Route();
         route.setRouteName(routeName);
         route.setRouteInfo(routeInfo);
         Gson gson = new Gson();
-        String[] routeImagesList = routeImages.split(",");
-        String routeImagesListJson = gson.toJson(routeImagesList);
-        System.out.println("===============================" + routeImagesListJson);
+        // String[] routeImagesList = routeImages.split(",");
+        // String routeImagesListJson = gson.toJson(routeImagesList);
+        // System.out.println("===============================" + routeImagesListJson);
+        String routeImagesListJson = gson.toJson(routeImages);
+
+        String alongScenicAreaJson = gson.toJson(alongScenicArea);
+        String routeTagsJson = gson.toJson(routeTags);
+        route.setRouteTags(routeTagsJson);
 
 
+        route.setAlongScenicAreas(alongScenicAreaJson);
         route.setRouteImage(routeImagesListJson);
         route.setRouteMileage(routeMileage);
         route.setSpendTime(spendTime);
         route.setSuitableTime(suitableTime);
         route.setUserId(1L);
 
-        // 将标签转换为json字符串存储
 
-        // List<String> routeTagsList = gson.fromJson(routeTags, new TypeToken<List<String>>() {
-        // }.getType());
-        System.out.println("===============================" + routeTags);
-        String[] routeTagsString = routeTags.split(",");
-        List<String> routeTagsList = new ArrayList<>(Arrays.asList(routeTagsString));
-        String routeTagsJson = gson.toJson(routeTagsList);
-        System.out.println("===============================" + routeTagsJson);
-        route.setRouteTags(routeTagsJson);
+
 
         // 需要先存储route生成routeid，方便关联表存储
         this.save(route);
@@ -112,17 +122,6 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         // 添加沿途景区的时候需要判断是否已经存在，如果不存在返回错误
         // Gson gson = new Gson();
 
-
-        List<Long> alongScenicAreaList = gson.fromJson(alongScenicArea, new TypeToken<List<Long>>() {
-        }.getType());
-        List<Long> alongElementList = gson.fromJson(alongElement, new TypeToken<List<Long>>() {
-        }.getType());
-        for (Long alongScenicAreaId : alongScenicAreaList) {
-            RouteScenicarea routeScenicarea = new RouteScenicarea();
-            routeScenicarea.setRouteId(route.getId());
-            routeScenicarea.setScenicAreaId(alongScenicAreaId);
-            routeScenicareaService.save(routeScenicarea);
-        }
         for (Long alongElementId : alongElementList) {
             RouteElement routeElement = new RouteElement();
             routeElement.setElementId(alongElementId);
@@ -139,12 +138,9 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         // 检验id是否合法
         DeleteUtil.checkId(ids);
 
-        // 删除和路线关联的景区和element
+        // 删除和路线关联的element
         QueryWrapper<RouteElement> queryWrapperRouteElement = new QueryWrapper<>();
-        QueryWrapper<RouteScenicarea> queryWrapperRouteScenicarea = new QueryWrapper<>();
 
-        queryWrapperRouteScenicarea.lambda().in(RouteScenicarea::getRouteId, ids);
-        routeScenicareaService.remove(queryWrapperRouteScenicarea);
         queryWrapperRouteElement.lambda().in(RouteElement::getRouteId, ids);
         routeElementService.remove(queryWrapperRouteElement);
 
@@ -194,10 +190,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
         int pageNum = searchRouteRequest.getPageNum();
         int pageSize = searchRouteRequest.getPageSize();
-
+        Page<Route> page = new Page<>(pageNum, pageSize);
         if (userRole == UserConstant.DEFAULT_ROLE) {
             queryWrapper.lambda().eq(Route::getUserId, loginUser.getId());
-            Page<Route> page = new Page<>(pageNum, pageSize);
+
             Page<Route> routePage = this.page(page, queryWrapper);
             List<Route> routeList = routePage.getRecords();
 
@@ -218,7 +214,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             if (routeStatus != null && routeStatus > 0) {
                 queryWrapper.lambda().eq(Route::getRouteStatus, routeStatus);
             }
-            Page<Route> page = new Page<>(pageNum, pageSize);
+            //Page<Route> page = new Page<>(pageNum, pageSize);
             Page<Route> routePage = this.page(page, queryWrapper);
             List<Route> routeList = routePage.getRecords();
 
@@ -249,8 +245,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             // 处理routeTags
             Gson gson = new Gson();
             String routeImage = route.getRouteImage();
-            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>() {
-            }.getType());
+            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>(){}.getType());
             routeVO.setRouteImage(routeImageList);
 
             String routeTags = route.getRouteTags();
@@ -259,15 +254,16 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
             routeVO.setRouteTags(routeTagsList);
 
-            QueryWrapper<RouteScenicarea> routeScenicAreaQueryWrapper = new QueryWrapper<>();
-            routeScenicAreaQueryWrapper.lambda().eq(RouteScenicarea::getRouteId, route.getId());
-            List<RouteScenicarea> routeScenicareaList = routeScenicareaService.list(routeScenicAreaQueryWrapper);
-            if (CollectionUtils.isNotEmpty(routeScenicareaList)) {
-                List<Long> scenicAreaIdList = routeScenicareaList.stream().map(RouteScenicarea::getScenicAreaId).collect(Collectors.toList());
-                QueryWrapper<ScenicArea> scenicAreaQueryWrapper = new QueryWrapper<>();
-                scenicAreaQueryWrapper.lambda().in(ScenicArea::getId, scenicAreaIdList);
-                List<ScenicArea> scenicAreaList = scenicAreaService.list(scenicAreaQueryWrapper);
-                routeVO.setAlongScenicAreaVO(scenicAreaList.stream().map(scenicArea -> {
+
+            String alongScenicAreas = route.getAlongScenicAreas();
+            List<Long> alongScenicAreasIds = gson.fromJson(alongScenicAreas, new TypeToken<List<Long>>() {
+            }.getType());
+
+            QueryWrapper<ScenicArea> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().in(ScenicArea::getId, alongScenicAreasIds);
+            List<ScenicArea> scenicAreasList = scenicAreaService.list(queryWrapper);
+            if (CollectionUtils.isNotEmpty(scenicAreasList)) {
+                routeVO.setAlongScenicAreaVO(scenicAreasList.stream().map(scenicArea -> {
                     ScenicAreaVO scenicAreaVO = new ScenicAreaVO();
                     BeanUtils.copyProperties(scenicArea, scenicAreaVO);
                     return scenicAreaVO;
@@ -282,7 +278,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
                 List<Long> elementIdList = routeElementList.stream().map(RouteElement::getElementId).collect(Collectors.toList());
                 QueryWrapper<Element> elementQueryWrapper = new QueryWrapper<>();
                 elementQueryWrapper.lambda().in(Element::getId, elementIdList);
-                List<Element> elementList = elementService.list(elementQueryWrapper);
+                List<Element> elementList = elementMapper.selectList(elementQueryWrapper);
                 routeVO.setAlongElementVO(elementList.stream().map(element -> {
                     ElementVO elementVO = new ElementVO();
                     BeanUtils.copyProperties(element, elementVO);
@@ -324,15 +320,18 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改的线路不存在");
         }
 
+        Route route = new Route();
+        BeanUtils.copyProperties(updateRouteRequest, route);
+        List<String> routeTags = updateRouteRequest.getRouteTags();
+        if (CollectionUtils.isNotEmpty(routeTags)){
+            String jsonRouteTags = gson.toJson(routeTags);
+            route.setRouteTags(jsonRouteTags);
+        }
+
         Boolean isAdmin = userService.isAdmin();
 
-
         // 管理员可以修改一切
-        if (isAdmin) {
-            Route route = new Route();
-            BeanUtils.copyProperties(updateRouteRequest, route);
-            return this.updateById(route);
-        } else {
+        if (!isAdmin) {
             // 普通用户只能修改自己的且未审核的线路
             Long loginUserId = userService.getLoginUser().getId();
             Long dbrouteUserId = dbroute.getUserId();
@@ -343,11 +342,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             if (dbRouteStatus == null || dbRouteStatus.equals(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS)){
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, "该路线已审核通过，无法修改");
             };
-            Route route = new Route();
-            BeanUtils.copyProperties(updateRouteRequest, route);
-            return this.updateById(route);
+            // return this.updateById(route);
         }
 
+        return this.updateById(route);
     }
 
     @Override
@@ -475,6 +473,38 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         return this.getRouteListToRouteVOList(finalRouteList);
     }
 
+    @Override
+    public Boolean updateAlongScenicArea(UpdateRouteAlongScenicAreaRequest updateRouteAlongScenicAreaRequest) {
+        Long id = updateRouteAlongScenicAreaRequest.getId();
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+        List<Long> routeAlongScenicArea = updateRouteAlongScenicAreaRequest.getRouteAlongScenicArea();
+        //判断更新的景区列表是否存在
+        routeAlongScenicArea.forEach(scenicAreaId -> {
+            ScenicArea scenicArea = scenicAreaService.getById(scenicAreaId);
+            if (ObjectUtils.isEmpty(scenicArea)) {
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区id有误");
+            }
+        });
+        Route dbRoute = this.getById(id);
+        if (ObjectUtils.isEmpty(dbRoute)) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "路线不存在");
+        }
+        Route route = new Route();
+        Gson gson = new Gson();
+        String routeAlongScenicAreaJson = gson.toJson(routeAlongScenicArea);
+        route.setId(id);
+        route.setAlongScenicAreas(routeAlongScenicAreaJson);
+        return this.updateById(route);
+
+
+    }
+
+    @Override
+    public Boolean deleteAlongScenicArea(DeleteRouteAlongScenicAreaRequest deleteRouteAlongScenicAreaRequest) {
+        return null;
+    }
 
 
 }

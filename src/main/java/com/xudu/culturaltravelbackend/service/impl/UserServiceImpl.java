@@ -268,6 +268,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
 
         BeanUtils.copyProperties(updateUserRequest, user);
+
+        List<String> userTags = updateUserRequest.getUserTags();
+        Gson gson = new Gson();
+        String jsonUserTags = gson.toJson(userTags);
+        user.setUserTags(jsonUserTags);
+
+
         if (updateUserRequest.getUserImage()!=null){
             qiniuUtil.deleteFile(user.getUserImage());
             user.setUserImage(qiniuUtil.upload(updateUserRequest.getUserImage()));

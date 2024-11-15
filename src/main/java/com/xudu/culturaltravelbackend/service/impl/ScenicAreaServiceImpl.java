@@ -51,14 +51,14 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         if (scenicAreaInfo == null){
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区介绍不能为空");
         }
-        Double scenicAreaLongitude = addScenicAreaRequest.getScenicAreaLongitude();
-        if (scenicAreaLongitude == null){
-            throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区经度不能为空");
-        }
-        Double scenicAreaLatitude = addScenicAreaRequest.getScenicAreaLatitude();
-        if (scenicAreaLatitude == null){
-            throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区纬度不能为空");
-        }
+        // Double scenicAreaLongitude = addScenicAreaRequest.getScenicAreaLongitude();
+        // if (scenicAreaLongitude == null){
+        //     throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区经度不能为空");
+        // }
+        // Double scenicAreaLatitude = addScenicAreaRequest.getScenicAreaLatitude();
+        // if (scenicAreaLatitude == null){
+        //     throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区纬度不能为空");
+        // }
         MultipartFile scenicAreaVoice = addScenicAreaRequest.getScenicAreaVoice();
         if (scenicAreaVoice == null){
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "景区语音不能为空");
@@ -71,8 +71,8 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         ScenicArea scenicArea = new ScenicArea();
         scenicArea.setScenicAreaName(scenicAreaName);
         scenicArea.setScenicAreaInfo(scenicAreaInfo);
-        scenicArea.setScenicAreaLongitude(scenicAreaLongitude);
-        scenicArea.setScenicAreaLatitude(scenicAreaLatitude);
+        // scenicArea.setScenicAreaLongitude(scenicAreaLongitude);
+        // scenicArea.setScenicAreaLatitude(scenicAreaLatitude);
 
         scenicArea.setScenicAreaVoice(qiniuUtil.upload(scenicAreaVoice));
 
@@ -140,6 +140,7 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
     public Boolean updateScenicArea(UpdateScenicAreaRequest updateScenicAreaRequest) {
 
         Long id = updateScenicAreaRequest.getId();
+        System.out.println("id:========================================== " + id);
         if (id == null || id <= 0) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
         }

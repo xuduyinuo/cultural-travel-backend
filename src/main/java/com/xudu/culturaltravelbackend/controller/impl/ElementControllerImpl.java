@@ -8,6 +8,7 @@ import com.xudu.culturaltravelbackend.model.dto.elementdto.AddElementRequest;
 import com.xudu.culturaltravelbackend.model.dto.elementdto.SearchElementRequest;
 import com.xudu.culturaltravelbackend.model.dto.elementdto.UpdateElementRequest;
 import com.xudu.culturaltravelbackend.model.vo.ElementVO;
+import com.xudu.culturaltravelbackend.model.vo.RouteVO;
 import com.xudu.culturaltravelbackend.service.ElementService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,5 +59,11 @@ public class ElementControllerImpl implements ElementController {
             return Result.error(ErrorCode.OPERATION_ERROR, "更新失败");
         }
         return Result.success("更新成功");
+    }
+
+    @Override
+    public Result searchRouteListByElement(Long elementId) {
+        List<RouteVO> routeVOList = elementService.getRouteVOListByElement(elementId);
+        return Result.success(routeVOList);
     }
 }

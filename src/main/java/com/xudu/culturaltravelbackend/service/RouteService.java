@@ -54,8 +54,8 @@ public interface RouteService extends IService<Route> {
 
     /**
      * 修改旅游线路
-     * @param updateRouteRequest
-     * @return
+     * @param updateRouteRequest 路线修改参数
+     * @return true/false
      */
     Boolean updateRoute(UpdateRouteRequest updateRouteRequest);
 
@@ -82,5 +82,13 @@ public interface RouteService extends IService<Route> {
      */
     List<RouteVO> recommendRouteByUserTags(long num, UserVO loginUser);
 
+    /**
+     * 添加沿途景区
+     */
+    Boolean updateAlongScenicArea(UpdateRouteAlongScenicAreaRequest updateRouteAlongScenicAreaRequest);
 
+    /**
+     * 删除沿途景区
+     */
+    Boolean deleteAlongScenicArea(DeleteRouteAlongScenicAreaRequest deleteRouteAlongScenicAreaRequest);
 }

@@ -5,14 +5,20 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
+import com.xudu.culturaltravelbackend.mapper.RouteMapper;
 import com.xudu.culturaltravelbackend.model.dto.elementdto.AddElementRequest;
 import com.xudu.culturaltravelbackend.model.dto.elementdto.SearchElementRequest;
 import com.xudu.culturaltravelbackend.model.dto.elementdto.UpdateElementRequest;
 import com.xudu.culturaltravelbackend.model.entity.Element;
+import com.xudu.culturaltravelbackend.model.entity.Route;
+import com.xudu.culturaltravelbackend.model.entity.RouteElement;
 import com.xudu.culturaltravelbackend.model.entity.Tag;
 import com.xudu.culturaltravelbackend.model.vo.ElementVO;
+import com.xudu.culturaltravelbackend.model.vo.RouteVO;
 import com.xudu.culturaltravelbackend.service.ElementService;
 import com.xudu.culturaltravelbackend.mapper.ElementMapper;
+import com.xudu.culturaltravelbackend.service.RouteElementService;
+import com.xudu.culturaltravelbackend.service.RouteService;
 import com.xudu.culturaltravelbackend.service.TagService;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
 import com.xudu.culturaltravelbackend.utils.QiniuUtil;
@@ -25,6 +31,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 * @author xudu
@@ -37,11 +44,18 @@ public class ElementServiceImpl extends ServiceImpl<ElementMapper, Element> impl
     @Resource
     private TagService tagService;
 
-
     @Resource
     private QiniuUtil qiniuUtil;
-    @Autowired
+
+    @Resource
     private DeleteUtil deleteUtil;
+
+
+    @Resource
+    private RouteElementService routeElementService;
+
+    @Resource
+    private RouteService routeService;
 
     @Override
     public Long saveElement(AddElementRequest addElementRequest) {
@@ -141,6 +155,35 @@ public class ElementServiceImpl extends ServiceImpl<ElementMapper, Element> impl
     public Integer deleteElement(List<Long> ids) {
         DeleteUtil.checkId(ids);
         return this.baseMapper.deleteBatchIds(ids);
+    }
+
+    @Override
+    public List<RouteVO> getRouteVOListByElement(Long elementId) {
+        if (elementId == null || elementId <= 0){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+        }
+
+        QueryWrapper<RouteElement> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(RouteElement::getElementId, elementId);
+        List<RouteElement> routeElementList = routeElementService.list(queryWrapper);
+
+        //获取和该elementId相关联的所有的routeId
+        List<Long> routeIdList = routeElementList.stream().map(RouteElement::getRouteId).collect(Collectors.toList());
+
+        List<Route> routeList = new ArrayList<>();
+
+        for(Long routeId: routeIdList){
+            QueryWrapper<Route> routeQueryWrapper = new QueryWrapper<>();
+            routeQueryWrapper.lambda().eq(Route::getId, routeId);
+            Route route = routeService.getOne(routeQueryWrapper);
+            if (route == null){
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
+            }
+            //处理创建人和路线标签
+            routeList.add(route);
+        }
+
+        return routeService.getRouteListToRouteVOList(routeList);
     }
 }
 

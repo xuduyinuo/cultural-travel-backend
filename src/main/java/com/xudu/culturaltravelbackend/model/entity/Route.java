@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.extension.handlers.GsonTypeHandler;
 import lombok.Data;
 
 /**
@@ -64,6 +66,12 @@ public class Route implements Serializable {
      * 线路标签
      */
     private String routeTags;
+
+    /**
+     * 路线沿途景区id（json数据表示）
+     */
+    //@TableField(typeHandler = GsonTypeHandler.class)
+    private String alongScenicAreas;
 
     /**
      * 创建时间

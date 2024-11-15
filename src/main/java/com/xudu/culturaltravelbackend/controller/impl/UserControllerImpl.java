@@ -1,5 +1,6 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
@@ -11,14 +12,18 @@ import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
 import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
+import com.xudu.culturaltravelbackend.utils.GetRequestUtil;
 import com.xudu.culturaltravelbackend.utils.RedisUtil;
+import com.xudu.culturaltravelbackend.utils.TokenUtil;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.management.Query;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -41,7 +46,11 @@ public class UserControllerImpl implements UserController {
 
     @Override
     public Result hello() {
-        return Result.success(10);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(User::getUserAccount, "xudu");
+        User user = userService.getOne(queryWrapper);
+        String userTags = user.getUserTags();
+        return Result.success(userTags);
     }
 
     @Override
@@ -67,7 +76,13 @@ public class UserControllerImpl implements UserController {
 
     @Override
     public Result logoutUser() {
-        return null;
+        // String token = TokenUtil.getTokenFromCookie(GetRequestUtil.getRequest());
+        String token = userService.getLoginUser().getToken();
+        Boolean b = redisUtil.deleteRedisContent(token);
+        if (!b){
+            return Result.error(ErrorCode.SYSTEM_ERROR, "退出失败");
+        }
+        return Result.success("退出成功");
     }
 
     //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)

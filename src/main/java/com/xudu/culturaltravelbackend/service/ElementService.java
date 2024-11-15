@@ -6,6 +6,7 @@ import com.xudu.culturaltravelbackend.model.dto.elementdto.UpdateElementRequest;
 import com.xudu.culturaltravelbackend.model.entity.Element;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xudu.culturaltravelbackend.model.vo.ElementVO;
+import com.xudu.culturaltravelbackend.model.vo.RouteVO;
 
 import java.util.List;
 
@@ -44,4 +45,10 @@ public interface ElementService extends IService<Element> {
      * @return
      */
     Integer deleteElement(List<Long> ids);
+
+
+    /**
+     * 获取和标签内容相关联的路线
+     */
+    List<RouteVO> getRouteVOListByElement(Long elementId);
 }

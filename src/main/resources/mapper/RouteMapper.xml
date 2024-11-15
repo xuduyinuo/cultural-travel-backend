@@ -15,6 +15,7 @@
             <result property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="routeStatus" column="routeStatus" jdbcType="TINYINT"/>
             <result property="routeTags" column="routeTags" jdbcType="VARCHAR"/>
+            <result property="alongScenicAreas" column="alongScenicAreas" jdbcType="VARCHAR"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
@@ -23,7 +24,7 @@
     <sql id="Base_Column_List">
         id,routeName,routeInfo,
         routeImage,routeMileage,spendTime,
-        suitableTime,userId,routeStatus,routeTags,
+        suitableTime,userId,routeStatus,routeTags,alongScenicAreas,
         createTime,updateTime,isDelete
     </sql>
 </mapper>

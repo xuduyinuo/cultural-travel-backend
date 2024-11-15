@@ -57,7 +57,12 @@ public class RouteControllerImpl implements RouteController {
 
     @Override
     public Result updateRoute(UpdateRouteRequest updateRouteRequest) {
-        return null;
+        Boolean b = routeService.updateRoute(updateRouteRequest);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR);
+        }
+        return Result.success("更新成功");
+
     }
 
     @Override
@@ -71,17 +76,29 @@ public class RouteControllerImpl implements RouteController {
 
     @Override
     public Result addRouteImage(AddRouteImageRequest addRouteImageRequest) {
-        return null;
+        Boolean b = routeService.addRouteImage(addRouteImageRequest);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR);
+        }
+        return Result.success("添加成功");
     }
 
     @Override
     public Result deleteRouteImage(DeleteRouteImageRequest deleteRouteImageRequest) {
-        return null;
+        Boolean b = routeService.deleteRouteImage(deleteRouteImageRequest);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR);
+        }
+        return Result.success("删除成功");
     }
 
     @Override
     public Result updateRouteImage(UpdateRouteImageRequest updateRouteImageRequest) {
-        return null;
+        Boolean b = routeService.updateRouteImage(updateRouteImageRequest);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR);
+        }
+        return Result.success("更新成功");
     }
 
     @Override
@@ -91,5 +108,14 @@ public class RouteControllerImpl implements RouteController {
         List<RouteVO> routeVOS = routeService.recommendRouteByUserTags(num, loginUser);
         return Result.success(routeVOS);
 
+    }
+
+    @Override
+    public Result addAlongElement(UpdateRouteAlongScenicAreaRequest updateRouteAlongScenicAreaRequest) {
+        Boolean b = routeService.updateAlongScenicArea(updateRouteAlongScenicAreaRequest);
+        if (!b){
+            return Result.error(ErrorCode.SYSTEM_ERROR, "更新失败");
+        }
+        return Result.success("更新成功");
     }
 }

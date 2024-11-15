@@ -51,14 +51,17 @@ server:
       cookie:
         max-age: 2592000
 mybatis-plus:
+  type-aliases-package: com.xudu.culturaltravelbackend.entity
+  mapper-locations: classpath*:mapper/*Mapper.xml
   configuration:
-    map-underscore-to-camel-case: false
+    map-underscore-to-camel-case: false # 不开启驼峰转下划线
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+      update-strategy: not_null #更新策略：只更新非空字段
 
 qiniu:
   accessKey: 4R1mM_82FX-AeKha20GmmkAXK0uPaar1F97C0xAk
