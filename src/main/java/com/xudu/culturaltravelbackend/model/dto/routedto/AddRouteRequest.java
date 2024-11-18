@@ -36,7 +36,8 @@ public class AddRouteRequest implements Serializable {
      * 路线图片url，多个图片用json字符串表示，例如：["xxx.png", "xxxx.jpg"]
      */
     @ApiModelProperty(value = "路线图片url，多个图片用json字符串表示，例如：[\"xxx.png\", \"xxxx.jpg\"]", required = true)
-    private List<String> routeImages;
+    //private List<String> routeImages;
+    private MultipartFile[] routeImages;
 
     /**
      * 路线里程

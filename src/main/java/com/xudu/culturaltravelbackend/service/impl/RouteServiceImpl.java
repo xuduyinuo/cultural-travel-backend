@@ -19,6 +19,7 @@ import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.*;
 import com.xudu.culturaltravelbackend.mapper.RouteMapper;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
+import com.xudu.culturaltravelbackend.utils.QiniuUtil;
 import com.xudu.culturaltravelbackend.utils.TagMatchAlgorithmUtil;
 import javafx.util.Pair;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +62,8 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
     private ElementMapper elementMapper;
     @Autowired
     private Gson gson;
+    @Autowired
+    private QiniuUtil qiniuUtil;
 
 
     @Override
@@ -66,7 +71,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
         String routeName = addRouteRequest.getRouteName();
         String routeInfo = addRouteRequest.getRouteInfo();
-        List<String> routeImages = addRouteRequest.getRouteImages();
+        MultipartFile[] routeImages = addRouteRequest.getRouteImages();
         Integer routeMileage = addRouteRequest.getRouteMileage();
         Integer spendTime = addRouteRequest.getSpendTime();
         String suitableTime = addRouteRequest.getSuitableTime();
@@ -86,10 +91,21 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
 
-        if (CollectionUtils.isEmpty(routeImages)|| CollectionUtils.isEmpty(alongScenicArea)|| CollectionUtils.isEmpty(alongElementList)|| CollectionUtils.isEmpty(routeTags)){
+        if (CollectionUtils.isEmpty(alongScenicArea) || CollectionUtils.isEmpty(alongElementList) || CollectionUtils.isEmpty(routeTags)){
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片或景区或标签元素或路线标签参数为空");
         }
 
+        List<String> routeImagesList = new ArrayList<>();
+        for (MultipartFile routeImage : routeImages){
+            if (routeImage.isEmpty()){
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片不能为空");
+            }
+            if (routeImage.getSize() > 1024 * 1024 * 5){
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片大小不能超过5M");
+            }
+            String routeImageUrl = qiniuUtil.upload(routeImage);
+            routeImagesList.add(routeImageUrl);
+        }
 
         Route route = new Route();
         route.setRouteName(routeName);
@@ -98,7 +114,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         // String[] routeImagesList = routeImages.split(",");
         // String routeImagesListJson = gson.toJson(routeImagesList);
         // System.out.println("===============================" + routeImagesListJson);
-        String routeImagesListJson = gson.toJson(routeImages);
+        String routeImagesListJson = gson.toJson(routeImagesList);
 
         String alongScenicAreaJson = gson.toJson(alongScenicArea);
         String routeTagsJson = gson.toJson(routeTags);
@@ -227,7 +243,6 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         }
 
         throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
-
     }
 
     @Override
@@ -359,10 +374,11 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改图片的线路不存在");
         }
 
-        String routeImageUrl = updateRouteImageRequest.getRouteImageUrl();
-        if (StringUtils.isBlank(routeImageUrl)) {
+        MultipartFile routeImage = updateRouteImageRequest.getRouteImage();
+        if (ObjectUtils.isEmpty(routeImage)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片为空");
         }
+        String routeImageUrl = qiniuUtil.upload(routeImage);
         String dbRouteImage = dbroute.getRouteImage();
         Gson gson = new Gson();
         List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
@@ -389,10 +405,11 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         if (ObjectUtils.isEmpty(dbroute)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "添加图片的线路不存在");
         }
-        String routeImageUrl = addRouteImageRequest.getRouteImageUrl();
-        if (StringUtils.isBlank(routeImageUrl)) {
+        MultipartFile routeImage = addRouteImageRequest.getRouteImage();
+        if (ObjectUtils.isEmpty(routeImage)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片为空");
         }
+        String routeImageUrl = qiniuUtil.upload(routeImage);
         String dbRouteImage = dbroute.getRouteImage();
         Gson gson = new Gson();
         List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());

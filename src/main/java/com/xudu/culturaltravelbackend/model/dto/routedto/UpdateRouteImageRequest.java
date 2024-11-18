@@ -33,8 +33,8 @@ public class UpdateRouteImageRequest implements Serializable {
      * 路线图片(多个图片用json字符串表示)
      */
     @ApiModelProperty(value = "路线图片", required = true)
-    private String routeImageUrl;
-
+    //private String routeImageUrl;
+    private MultipartFile routeImage;
 
     private static final long serialVersionUID = 1L;
 }

@@ -26,7 +26,7 @@ public interface RouteController {
      */
     @ApiOperation("添加路线")
     @PostMapping("/add")
-    Result addRoute(@RequestBody AddRouteRequest addRouteRequest);
+    Result addRoute(AddRouteRequest addRouteRequest);
 
     /**
      * 删除路线
