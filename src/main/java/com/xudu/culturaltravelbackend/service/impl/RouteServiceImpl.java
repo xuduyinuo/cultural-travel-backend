@@ -19,6 +19,7 @@ import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.*;
 import com.xudu.culturaltravelbackend.mapper.RouteMapper;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
+import com.xudu.culturaltravelbackend.utils.GetRequestUtil;
 import com.xudu.culturaltravelbackend.utils.QiniuUtil;
 import com.xudu.culturaltravelbackend.utils.TagMatchAlgorithmUtil;
 import javafx.util.Pair;
@@ -80,8 +81,8 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
 
 
-        // UserVO loginUser = userService.getLoginUser(GetRequestUtil.getRequest());
-        // Long userId = loginUser.getId();
+        UserVO loginUser = userService.getLoginUser();
+        Long userId = loginUser.getId();
 
         List<String> routeTags = addRouteRequest.getRouteTags();
         if (StringUtils.isAnyBlank(routeName, routeInfo,  suitableTime)) {
@@ -126,7 +127,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         route.setRouteMileage(routeMileage);
         route.setSpendTime(spendTime);
         route.setSuitableTime(suitableTime);
-        route.setUserId(1L);
+        route.setUserId(userId);
 
 
 
@@ -221,7 +222,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             return routeVOPage;
         }
         if (userRole == UserConstant.ADMIN_ROLE) {
-
+            //管理员还可以按照用户和线路状态查询
             Long userId = searchRouteRequest.getUserId();
             if (userId != null && userId > 0) {
                 queryWrapper.lambda().eq(Route::getUserId, userId);
