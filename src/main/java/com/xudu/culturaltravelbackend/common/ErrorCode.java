@@ -13,6 +13,7 @@ public enum ErrorCode {
     NULL_ERROR(402,"请求数据为空"),
     NOT_LOGIN_ERROR(403, "未登录"),
     NO_AUTH_ERROR(404, "无权限"),
+    BAN_ERROR(501, "用户被封禁"),
     NOT_FOUND_ERROR(405, "请求数据不存在"),
     FORBIDDEN_ERROR(406, "禁止访问"),
     OPERATION_ERROR(407, "操作失败"),

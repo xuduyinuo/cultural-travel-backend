@@ -121,7 +121,6 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         String routeTagsJson = gson.toJson(routeTags);
         route.setRouteTags(routeTagsJson);
 
-
         route.setAlongScenicAreas(alongScenicAreaJson);
         route.setRouteImage(routeImagesListJson);
         route.setRouteMileage(routeMileage);
@@ -129,8 +128,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         route.setSuitableTime(suitableTime);
         route.setUserId(userId);
 
-
-
+        // 管理员添加路线直接审核成功
+        if (loginUser.getUserRole() == UserConstant.ADMIN_ROLE){
+            route.setRouteStatus(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS);
+        }
 
         // 需要先存储route生成routeid，方便关联表存储
         this.save(route);

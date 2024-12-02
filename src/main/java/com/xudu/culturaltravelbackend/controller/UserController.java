@@ -5,10 +5,7 @@ import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.DeleteRequest;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.constant.UserConstant;
-import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -84,4 +81,8 @@ public interface UserController {
     @ApiOperation("删除用户")
     @PostMapping("/delete")
     Result deleteUser(@RequestBody DeleteBatchRequest deleteBatchRequest, HttpServletRequest request);
+
+    @ApiOperation("封禁用户")
+    @PostMapping("/update/ban")
+    Result banUser(@RequestBody BanUserRequest banUserRequest);
 }

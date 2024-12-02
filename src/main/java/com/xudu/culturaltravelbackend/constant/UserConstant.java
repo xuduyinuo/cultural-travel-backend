@@ -22,4 +22,9 @@ public interface UserConstant {
      */
     int ADMIN_ROLE = 1;
 
+    /**
+     * ban
+     */
+    int BAN_ROLE = 2;
+
 }

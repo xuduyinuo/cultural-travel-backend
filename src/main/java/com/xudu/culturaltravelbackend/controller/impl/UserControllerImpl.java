@@ -8,10 +8,7 @@ import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
 import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.controller.UserController;
-import com.xudu.culturaltravelbackend.model.dto.userdto.LoginRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.RegisterRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.SearchUserRequest;
-import com.xudu.culturaltravelbackend.model.dto.userdto.UpdateUserRequest;
+import com.xudu.culturaltravelbackend.model.dto.userdto.*;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.UserService;
@@ -110,5 +107,15 @@ public class UserControllerImpl implements UserController {
         List<Long> ids = deleteBatchRequest.getIds();
         Integer deleteCount = userService.deleteUser(ids);
         return Result.success(deleteCount);
+    }
+
+    @Override
+    public Result banUser(BanUserRequest banUserRequest) {
+        Long id = banUserRequest.getId();
+        Boolean b = userService.banUser(id);
+        if (!b){
+            return Result.error(ErrorCode.SYSTEM_ERROR, "封禁失败");
+        }
+        return Result.success("封禁成功");
     }
 }

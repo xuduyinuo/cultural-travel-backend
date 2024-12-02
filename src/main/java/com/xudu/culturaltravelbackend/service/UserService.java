@@ -76,6 +76,10 @@ public interface UserService extends IService<User> {
      */
     Integer deleteUser(List<Long> ids);
 
+    /**
+     * 封禁用户
+     */
+    Boolean banUser(Long id);
 
     /**
      * 添加用户标签

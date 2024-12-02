@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.userdto.*;
 import com.xudu.culturaltravelbackend.model.entity.User;
@@ -302,6 +303,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         });
 
         return this.baseMapper.deleteBatchIds(ids);
+    }
+
+    @Override
+    public Boolean banUser(Long id) {
+        //校验id是否合法
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+
+        User dbuser = this.getOne(new QueryWrapper<User>().lambda().eq(User::getId, id));
+        if (dbuser == null){
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, id + "用户不存在");
+        }
+        User user = new User();
+        user.setId(id);
+        user.setUserRole(UserConstant.BAN_ROLE);
+        return this.updateById(user);
     }
 
     @Override

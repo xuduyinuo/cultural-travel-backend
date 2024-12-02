@@ -2,6 +2,7 @@ package com.xudu.culturaltravelbackend.aop;
 
 import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.enums.UserRoleEnum;
@@ -45,6 +46,11 @@ public class AuthInterceptor {
 
         // 当前登录用户
         UserVO loginUser = userService.getLoginUser();
+
+        if (loginUser.getUserRole() == UserConstant.BAN_ROLE){
+            throw new ServiceException(ErrorCode.BAN_ERROR, "用户被封禁");
+        }
+
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         // 不需要权限，放行
         if (mustRoleEnum == null) {
