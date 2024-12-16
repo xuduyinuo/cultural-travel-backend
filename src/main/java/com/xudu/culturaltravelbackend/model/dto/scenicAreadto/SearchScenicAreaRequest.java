@@ -44,6 +44,12 @@ public class SearchScenicAreaRequest extends PageRequest implements Serializable
     @ApiModelProperty(value = "景区纬度", required = false)
     private Double scenicAreaLatitude;
 
+    /**
+     * 景区状态
+     */
+    @ApiModelProperty(value = "景区状态", required = false)
+    private Integer scenicAreaStatus;
+
 
     private static final long serialVersionUID = 1L;
 }

@@ -84,4 +84,12 @@ public interface ScenicSpotController {
     @ApiOperation("删除景点图片")
     @PostMapping("/update/deleteimage")
     Result deleteScenicSpotImage(DeleteScenicSpotImageRequest deleteScenicSpotImageRequest);
+
+    /**
+     * 审核景区
+     */
+    @ApiOperation("审核景点")
+    @PostMapping("/audit")
+    Result auditScenicSpot(Long id);
+
 }

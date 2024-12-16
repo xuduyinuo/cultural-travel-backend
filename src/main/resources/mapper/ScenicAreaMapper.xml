@@ -12,6 +12,8 @@
             <result property="scenicAreaLatitude" column="scenicAreaLatitude" jdbcType="DOUBLE"/>
             <result property="scenicAreaImage" column="scenicAreaImage" jdbcType="OTHER"/>
             <result property="scenicAreaVoice" column="scenicAreaVoice" jdbcType="VARCHAR"/>
+            <result property="scenicAreaStatus" column="scenicAreaStatus" jdbcType="TINYINT"/>
+            <result property="createScenicAreaUserId" column="createScenicAreaUserId" jdbcType="BIGINT"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
@@ -20,7 +22,7 @@
     <sql id="Base_Column_List">
         id,scenicAreaName,scenicAreaInfo,
         scenicAreaLongitude,scenicAreaLatitude,scenicAreaImage,
-        scenicAreaVoice,createTime,updateTime,
+        scenicAreaVoice,scenicAreaStatus,createScenicAreaUserId,createTime,updateTime,
         isDelete
     </sql>
 </mapper>

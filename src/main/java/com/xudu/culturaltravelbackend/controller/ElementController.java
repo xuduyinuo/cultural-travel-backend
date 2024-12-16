@@ -43,5 +43,4 @@ public interface ElementController {
     @GetMapping("/get/route/list")
     Result searchRouteListByElement(Long elementId);
 
-
 }

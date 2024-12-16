@@ -68,4 +68,11 @@ public interface ScenicSpotService extends IService<ScenicSpot> {
      */
     Boolean addScenicSpotImage(AddScenicSpotImageRequest addScenicSpotImageRequest);
 
+    /**
+     * 审核景点
+     * @param id
+     * @return
+     */
+    Boolean auditScenicSpot(Long id);
+
 }

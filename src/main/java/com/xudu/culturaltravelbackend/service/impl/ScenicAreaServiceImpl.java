@@ -6,14 +6,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
+import com.xudu.culturaltravelbackend.constant.RouteConstant;
+import com.xudu.culturaltravelbackend.constant.ScenicAreaConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.scenicAreadto.*;
+import com.xudu.culturaltravelbackend.model.entity.Route;
 import com.xudu.culturaltravelbackend.model.entity.ScenicArea;
 import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.ScenicAreaVO;
+import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.ScenicAreaService;
 import com.xudu.culturaltravelbackend.mapper.ScenicAreaMapper;
+import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
+import com.xudu.culturaltravelbackend.utils.GetRequestUtil;
 import com.xudu.culturaltravelbackend.utils.QiniuUtil;
 
 import org.springframework.beans.BeanUtils;
@@ -22,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +44,9 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
     private QiniuUtil qiniuUtil;
     @Autowired
     private DeleteUtil deleteUtil;
+
+    @Resource
+    private UserService userService;
 
 
     @Override
@@ -76,6 +86,11 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
 
         scenicArea.setScenicAreaVoice(qiniuUtil.upload(scenicAreaVoice));
 
+        //HttpServletRequest request = GetRequestUtil.getRequest();
+        //添加创建人id
+        UserVO loginUser = userService.getLoginUser();
+        scenicArea.setCreateScenicAreaUserId(loginUser.getId());
+
         //上传图片
         List<String> fileNames = new ArrayList<>();
         for (MultipartFile file : scenicAreaImages){
@@ -114,6 +129,10 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         if (scenicAreaLatitude != null){
             queryWrapper.lambda().eq(ScenicArea::getScenicAreaLatitude, scenicAreaLatitude);
         }
+        Integer scenicAreaStatus = searchScenicAreaRequest.getScenicAreaStatus();
+        if (scenicAreaStatus != null){
+            queryWrapper.lambda().eq(ScenicArea::getScenicAreaStatus, scenicAreaStatus);
+        }
 
         //分页查询
         int pageNum = searchScenicAreaRequest.getPageNum();
@@ -127,6 +146,11 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         List<ScenicAreaVO> scenicAreaVOList = new ArrayList<>();
         scenicAreaList.forEach(scenicArea -> {
             ScenicAreaVO scenicAreaVO = new ScenicAreaVO();
+
+            //将景区创建人的账号添加到VO中
+            User user = userService.getById(scenicArea.getCreateScenicAreaUserId());
+            scenicAreaVO.setCreateScenicAreaUserAccount(user.getUserAccount());
+
             Gson gson = new Gson();
             scenicAreaVO.setScenicAreaImages(gson.fromJson(scenicArea.getScenicAreaImage(), new TypeToken<List<String>>(){}.getType()));
             BeanUtils.copyProperties(scenicArea, scenicAreaVO);
@@ -242,6 +266,25 @@ public class ScenicAreaServiceImpl extends ServiceImpl<ScenicAreaMapper, ScenicA
         imageList.add(qiniuUtil.upload(scenicAreaImage));
         String jsonScenicAreaImage = gson.toJson(imageList);
         return this.update().set("scenicAreaImage", jsonScenicAreaImage).eq("id", id).update();
+    }
+
+    @Override
+    public Boolean auditScenicArea(Long id) {
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR);
+        }
+        ScenicArea dbscenicArea = this.getById(id);
+        if (dbscenicArea == null) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR);
+        }
+        if (dbscenicArea.getScenicAreaStatus() == ScenicAreaConstant.SCENIC_AREA_STATUS_AUDIT_SUCCESS) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "该景区已审核通过");
+        }
+
+        ScenicArea scenicArea = new ScenicArea();
+        scenicArea.setId(id);
+        scenicArea.setScenicAreaStatus(ScenicAreaConstant.SCENIC_AREA_STATUS_AUDIT_SUCCESS);
+        return this.updateById(scenicArea);
     }
 }
 

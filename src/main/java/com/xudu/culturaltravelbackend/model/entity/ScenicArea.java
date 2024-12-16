@@ -53,6 +53,16 @@ public class ScenicArea implements Serializable {
     private String scenicAreaVoice;
 
     /**
+     * 景区审核状态 0-未审核 1-已审核
+     */
+    private Integer scenicAreaStatus;
+
+    /**
+     * 创建人id
+     */
+    private Long createScenicAreaUserId;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

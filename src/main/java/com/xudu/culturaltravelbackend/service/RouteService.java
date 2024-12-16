@@ -91,4 +91,9 @@ public interface RouteService extends IService<Route> {
      * 删除沿途景区
      */
     Boolean deleteAlongScenicArea(DeleteRouteAlongScenicAreaRequest deleteRouteAlongScenicAreaRequest);
+
+    /**
+     * 小程序调用的路线
+     */
+    List<RouteVO> getRouteForMiniprogram(SearchRouteForMIniprogramRequest searchRouteForMIniprogramRequest);
 }

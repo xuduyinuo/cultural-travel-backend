@@ -35,5 +35,11 @@ public class SearchScenicSpotRequest extends PageRequest implements Serializable
     @ApiModelProperty(value = "景区id", required = false)
     private Long scenicAreaId;
 
+    /**
+     * 景点状态
+     */
+    @ApiModelProperty(value = "景点状态", required = false)
+    private Integer scenicSpotStatus;
+
     private static final long serialVersionUID = 1L;
 }

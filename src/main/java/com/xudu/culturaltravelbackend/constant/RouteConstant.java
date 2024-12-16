@@ -8,12 +8,12 @@ public interface RouteConstant {
 
 
     /**
-     * 普通用户
+     * 未审核
      */
     int ROUTE_STATUS_NOT_AUDIT = 0;
 
     /**
-     * 管理员
+     * 已审核
      */
     int ROUTE_STATUS_AUDIT_SUCCESS = 1;
 

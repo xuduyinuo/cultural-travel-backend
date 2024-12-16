@@ -10,6 +10,8 @@
             <result property="scenicSpotImage" column="scenicSpotImage" jdbcType="VARCHAR"/>
             <result property="scenicSpotInfo" column="scenicSpotInfo" jdbcType="VARCHAR"/>
             <result property="scenicAreaId" column="scenicAreaId" jdbcType="BIGINT"/>
+            <result property="scenicSpotStatus" column="scenicSpotStatus" jdbcType="TINYINT"/>
+            <result property="createScenicSpotUserId" column="createScenicSpotUserId" jdbcType="BIGINT"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
@@ -17,7 +19,8 @@
 
     <sql id="Base_Column_List">
         id,scenicSpotName,scenicSpotImage,
-        scenicSpotInfo,scenicAreaId,createTime,
+        scenicSpotInfo,scenicAreaId,scenicSpotStatus,
+        createScenicSpotUserId,createTime,
         updateTime,isDelete
     </sql>
 </mapper>

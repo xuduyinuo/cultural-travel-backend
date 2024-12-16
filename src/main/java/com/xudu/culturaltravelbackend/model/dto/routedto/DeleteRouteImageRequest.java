@@ -25,7 +25,7 @@ public class DeleteRouteImageRequest implements Serializable {
      * 删除的图片下标
      */
     @ApiModelProperty(value = "图片索引", required = true)
-    private Long index;
+    private Long imageIndex;
 
     private static final long serialVersionUID = 1L;
 }

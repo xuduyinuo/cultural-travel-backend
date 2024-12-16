@@ -40,6 +40,16 @@ public class ScenicSpotVO implements Serializable {
     private Long scenicAreaId;
 
     /**
+     * 景点审核状态 0-未审核 1-已审核
+     */
+    private Integer scenicSpotStatus;
+
+    /**
+     * 创建景点的用户
+     */
+    private String createScenicSpotUserAccount;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

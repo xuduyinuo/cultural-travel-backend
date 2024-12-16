@@ -74,7 +74,7 @@ public interface RouteController {
      */
     @ApiOperation("删除路线图片")
     @PostMapping("/delete/image")
-    Result deleteRouteImage(DeleteRouteImageRequest deleteRouteImageRequest);
+    Result deleteRouteImage(@RequestBody DeleteRouteImageRequest deleteRouteImageRequest);
 
     /**
      * 更新路线图片
@@ -94,6 +94,14 @@ public interface RouteController {
     @ApiOperation("更新路线沿途元素")
     @PostMapping("/update/alongScenicArea")
     Result addAlongElement(@RequestBody UpdateRouteAlongScenicAreaRequest updateRouteAlongScenicAreaRequest);
+
+
+    /**
+     * 根据标签推荐路线
+     */
+    @ApiOperation("小程序调用的路线")
+    @GetMapping("/miniprogram")
+    Result getRouteForMiniprogram(SearchRouteForMIniprogramRequest searchRouteForMIniprogramRequest);
 
 
 }

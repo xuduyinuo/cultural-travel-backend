@@ -59,8 +59,16 @@ public class UpdateRouteRequest implements Serializable {
     private String suitableTime;
 
     /**
-     * 沿途景区
+     * 沿途景区(多个元素用json字符串表示)
      */
+    @ApiModelProperty(value = "沿途景区,json景区id字符串", required = false)
+    private List<Long> alongScenicArea;
+
+    /**
+     * 路线相关的标签元素
+     */
+    @ApiModelProperty(value = "路线相关的标签元素", required = false)
+    private List<Long> routeElements;
 
 
     /**

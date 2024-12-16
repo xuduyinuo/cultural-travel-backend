@@ -14,6 +14,7 @@ import lombok.Data;
 @TableName(value ="scenic_spot")
 @Data
 public class ScenicSpot implements Serializable {
+
     /**
      * 景点id
      */
@@ -39,6 +40,16 @@ public class ScenicSpot implements Serializable {
      * 景区id
      */
     private Long scenicAreaId;
+
+    /**
+     * 景点审核状态 0-未审核 1-已审核
+     */
+    private Integer scenicSpotStatus;
+
+    /**
+     * 创建景点用户id
+     */
+    private Long createScenicSpotUserId;
 
     /**
      * 创建时间

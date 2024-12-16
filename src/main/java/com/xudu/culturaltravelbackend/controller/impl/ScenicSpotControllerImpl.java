@@ -1,9 +1,11 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.controller.ScenicSpotController;
 import com.xudu.culturaltravelbackend.model.dto.scenicSpotdto.*;
 import com.xudu.culturaltravelbackend.model.vo.ScenicSpotVO;
@@ -43,11 +45,13 @@ public class ScenicSpotControllerImpl implements ScenicSpotController {
         return Result.success(scenicSpotVOPage);
     }
 
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Override
     public Result deleteScenicSpot(DeleteBatchRequest deleteBatchRequest) {
         List<Long> ids = deleteBatchRequest.getIds();
         return Result.success(scenicSpotService.deleteScenicSpot(ids));
     }
+
 
     @Override
     public Result updateScenicSpot(UpdateScenicSpotRequest updateScenicSpotRequest) {
@@ -83,5 +87,14 @@ public class ScenicSpotControllerImpl implements ScenicSpotController {
             return Result.error(ErrorCode.OPERATION_ERROR, "删除失败");
         }
         return Result.success("删除成功");
+    }
+
+    @Override
+    public Result auditScenicSpot(Long id) {
+        Boolean b = scenicSpotService.auditScenicSpot(id);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR, "审核失败");
+        }
+        return Result.success("审核成功");
     }
 }

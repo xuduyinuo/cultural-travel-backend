@@ -1,9 +1,11 @@
 package com.xudu.culturaltravelbackend.controller.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudu.culturaltravelbackend.annotation.AuthCheck;
 import com.xudu.culturaltravelbackend.common.DeleteBatchRequest;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
 import com.xudu.culturaltravelbackend.common.Result;
+import com.xudu.culturaltravelbackend.constant.UserConstant;
 import com.xudu.culturaltravelbackend.controller.RouteController;
 import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import com.xudu.culturaltravelbackend.model.vo.RouteVO;
@@ -64,7 +66,7 @@ public class RouteControllerImpl implements RouteController {
         return Result.success("更新成功");
 
     }
-
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Override
     public Result auditRoute(Long id) {
         Boolean b = routeService.auditRoute(id);
@@ -117,5 +119,11 @@ public class RouteControllerImpl implements RouteController {
             return Result.error(ErrorCode.SYSTEM_ERROR, "更新失败");
         }
         return Result.success("更新成功");
+    }
+
+    @Override
+    public Result getRouteForMiniprogram(SearchRouteForMIniprogramRequest searchRouteForMIniprogramRequest) {
+        List<RouteVO> routeForMiniprogram = routeService.getRouteForMiniprogram(searchRouteForMIniprogramRequest);
+        return Result.success(routeForMiniprogram);
     }
 }

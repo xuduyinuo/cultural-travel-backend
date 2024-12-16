@@ -64,4 +64,9 @@ public interface ScenicAreaService extends IService<ScenicArea> {
      */
     Boolean addScenicAreaImage(AddScenicAreaImageRequest addScenicAreaImageRequest);
 
+    /**
+     * 审核景区
+     */
+    Boolean auditScenicArea(Long id);
+
 }

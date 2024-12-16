@@ -67,7 +67,7 @@ public class AddRouteRequest implements Serializable {
      * 沿途element，json 元素id字符串
      */
     @ApiModelProperty(value = "沿途element，json 元素id字符串", required = true)
-    private List<Long> alongElement;
+    private List<Long> routeElements;
 
     /**
      * 线路标签例如：["xxx", "xxxx"]

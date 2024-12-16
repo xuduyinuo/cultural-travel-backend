@@ -85,4 +85,12 @@ public interface ScenicAreaController {
     @PostMapping("/update/deleteimage")
     Result deleteScenicAreaImage(DeleteScenicAreaImageRequest deleteScenicAreaImageRequest);
 
+    /**
+     * 审核景区
+     */
+    @ApiOperation("审核景区")
+    @PostMapping("/audit")
+    Result auditScenicArea(Long id);
+
+
 }

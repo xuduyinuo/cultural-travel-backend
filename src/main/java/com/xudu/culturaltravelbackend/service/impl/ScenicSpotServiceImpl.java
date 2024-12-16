@@ -5,14 +5,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.xudu.culturaltravelbackend.common.ErrorCode;
+import com.xudu.culturaltravelbackend.constant.ScenicAreaConstant;
+import com.xudu.culturaltravelbackend.constant.ScenicSpotConstant;
 import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.model.dto.scenicSpotdto.*;
 import com.xudu.culturaltravelbackend.model.entity.ScenicArea;
 import com.xudu.culturaltravelbackend.model.entity.ScenicSpot;
+import com.xudu.culturaltravelbackend.model.entity.User;
 import com.xudu.culturaltravelbackend.model.vo.ScenicSpotVO;
+import com.xudu.culturaltravelbackend.model.vo.UserVO;
 import com.xudu.culturaltravelbackend.service.ScenicAreaService;
 import com.xudu.culturaltravelbackend.service.ScenicSpotService;
 import com.xudu.culturaltravelbackend.mapper.ScenicSpotMapper;
+import com.xudu.culturaltravelbackend.service.UserService;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
 import com.xudu.culturaltravelbackend.utils.QiniuUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +43,9 @@ public class ScenicSpotServiceImpl extends ServiceImpl<ScenicSpotMapper, ScenicS
 
     @Resource
     private ScenicAreaService scenicAreaService;
+
+    @Resource
+    private UserService userService;
 
     @Override
     public Long saveScenicSpot(AddScenicSpotRequest addScenicSpotRequest) {
@@ -69,6 +77,9 @@ public class ScenicSpotServiceImpl extends ServiceImpl<ScenicSpotMapper, ScenicS
             String fileName = qiniuUtil.upload(file);
             scenicSpotImageList.add(fileName);
         }
+
+
+
         Gson gson = new Gson();
         String jsonScenicSpotImage = gson.toJson(scenicSpotImageList);
         ScenicSpot scenicSpot = new ScenicSpot();
@@ -76,6 +87,10 @@ public class ScenicSpotServiceImpl extends ServiceImpl<ScenicSpotMapper, ScenicS
         scenicSpot.setScenicSpotInfo(scenicSpotInfo);
         scenicSpot.setScenicSpotImage(jsonScenicSpotImage);
         scenicSpot.setScenicAreaId(scenicAreaId);
+
+        UserVO loginUser = userService.getLoginUser();
+        scenicSpot.setCreateScenicSpotUserId(loginUser.getId());
+
         this.save(scenicSpot);
         return scenicSpot.getId();
 
@@ -123,6 +138,10 @@ public class ScenicSpotServiceImpl extends ServiceImpl<ScenicSpotMapper, ScenicS
         if (scenicAreaId != null){
             queryWrapper.lambda().eq(ScenicSpot::getScenicAreaId, scenicAreaId);
         }
+        Integer scenicSpotStatus = searchScenicSpotRequest.getScenicSpotStatus();
+        if (scenicSpotStatus != null){
+            queryWrapper.lambda().eq(ScenicSpot::getScenicSpotStatus, scenicSpotStatus);
+        }
 
         int pageNum = searchScenicSpotRequest.getPageNum();
         int pageSize = searchScenicSpotRequest.getPageSize();
@@ -134,6 +153,12 @@ public class ScenicSpotServiceImpl extends ServiceImpl<ScenicSpotMapper, ScenicS
         List<ScenicSpotVO> scenicSpotVOList = new ArrayList<>();
         scenicSpotPage.getRecords().forEach(scenicSpot -> {
             ScenicSpotVO scenicSpotVO = new ScenicSpotVO();
+
+            //将景点的创建人名称设置进去
+            Long userId = scenicSpot.getCreateScenicSpotUserId();
+            User user = userService.getById(userId);
+            scenicSpotVO.setCreateScenicSpotUserAccount(user.getUserAccount());
+
             Gson gson = new Gson();
             scenicSpotVO.setScenicSpotImages(gson.fromJson(scenicSpot.getScenicSpotImage(), List.class));
             BeanUtils.copyProperties(scenicSpot, scenicSpotVO);
@@ -212,6 +237,25 @@ public class ScenicSpotServiceImpl extends ServiceImpl<ScenicSpotMapper, ScenicS
         imageList.add(qiniuUtil.upload(scenicSpotImage));
         String jsonScenicSpotImage = gson.toJson(imageList);
         return this.update().set("scenicSpotImage", jsonScenicSpotImage).eq("id", id).update();
+    }
+
+    @Override
+    public Boolean auditScenicSpot(Long id) {
+        if (id == null || id <= 0) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR);
+        }
+        ScenicSpot dbscenicSpot = this.getById(id);
+        if (dbscenicSpot == null) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR);
+        }
+        if (dbscenicSpot.getScenicSpotStatus() == ScenicSpotConstant.SCENIC_SPOT_STATUS_AUDIT_SUCCESS) {
+            throw new ServiceException(ErrorCode.PARAMS_ERROR, "该景点已审核通过");
+        }
+
+        ScenicSpot scenicSpot = new ScenicSpot();
+        scenicSpot.setId(id);
+        scenicSpot.setScenicSpotStatus(ScenicSpotConstant.SCENIC_SPOT_STATUS_AUDIT_SUCCESS);
+        return this.updateById(scenicSpot);
     }
 }
 

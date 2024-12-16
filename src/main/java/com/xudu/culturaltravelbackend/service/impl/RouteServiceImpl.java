@@ -1,5 +1,6 @@
 package com.xudu.culturaltravelbackend.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,10 +13,7 @@ import com.xudu.culturaltravelbackend.exception.ServiceException;
 import com.xudu.culturaltravelbackend.mapper.ElementMapper;
 import com.xudu.culturaltravelbackend.model.dto.routedto.*;
 import com.xudu.culturaltravelbackend.model.entity.*;
-import com.xudu.culturaltravelbackend.model.vo.ElementVO;
-import com.xudu.culturaltravelbackend.model.vo.RouteVO;
-import com.xudu.culturaltravelbackend.model.vo.ScenicAreaVO;
-import com.xudu.culturaltravelbackend.model.vo.UserVO;
+import com.xudu.culturaltravelbackend.model.vo.*;
 import com.xudu.culturaltravelbackend.service.*;
 import com.xudu.culturaltravelbackend.mapper.RouteMapper;
 import com.xudu.culturaltravelbackend.utils.DeleteUtil;
@@ -63,8 +61,12 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
     private ElementMapper elementMapper;
     @Autowired
     private Gson gson;
+
     @Autowired
     private QiniuUtil qiniuUtil;
+
+    @Resource
+    private ScenicSpotService scenicSpotService;
 
 
     @Override
@@ -77,31 +79,48 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         Integer spendTime = addRouteRequest.getSpendTime();
         String suitableTime = addRouteRequest.getSuitableTime();
         List<Long> alongScenicArea = addRouteRequest.getAlongScenicArea();
-        List<Long> alongElementList = addRouteRequest.getAlongElement();
-
+        // 判断景区是否存在
+        for (Long scenicAreaId : alongScenicArea) {
+            QueryWrapper<ScenicArea> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(ScenicArea::getId, scenicAreaId);
+            ScenicArea scenicArea = scenicAreaService.getOne(queryWrapper);
+            if (scenicArea == null) {
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, scenicAreaId + "景区不存在");
+            }
+        }
+        List<Long> alongElementList = addRouteRequest.getRouteElements();
+        // 判断元素是否存在
+        for (Long elementId : alongElementList) {
+            QueryWrapper<Element> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(Element::getId, elementId);
+            Element element = elementMapper.selectOne(queryWrapper);
+            if (element == null) {
+                throw new ServiceException(ErrorCode.PARAMS_ERROR, elementId + "元素不存在");
+            }
+        }
 
 
         UserVO loginUser = userService.getLoginUser();
         Long userId = loginUser.getId();
 
         List<String> routeTags = addRouteRequest.getRouteTags();
-        if (StringUtils.isAnyBlank(routeName, routeInfo,  suitableTime)) {
+        if (StringUtils.isAnyBlank(routeName, routeInfo, suitableTime)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
         if (routeMileage == null || spendTime == null) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR);
         }
 
-        if (CollectionUtils.isEmpty(alongScenicArea) || CollectionUtils.isEmpty(alongElementList) || CollectionUtils.isEmpty(routeTags)){
+        if (CollectionUtils.isEmpty(alongScenicArea) || CollectionUtils.isEmpty(alongElementList) || CollectionUtils.isEmpty(routeTags)) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片或景区或标签元素或路线标签参数为空");
         }
 
         List<String> routeImagesList = new ArrayList<>();
-        for (MultipartFile routeImage : routeImages){
-            if (routeImage.isEmpty()){
+        for (MultipartFile routeImage : routeImages) {
+            if (routeImage.isEmpty()) {
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片不能为空");
             }
-            if (routeImage.getSize() > 1024 * 1024 * 5){
+            if (routeImage.getSize() > 1024 * 1024 * 5) {
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片大小不能超过5M");
             }
             String routeImageUrl = qiniuUtil.upload(routeImage);
@@ -129,7 +148,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         route.setUserId(userId);
 
         // 管理员添加路线直接审核成功
-        if (loginUser.getUserRole() == UserConstant.ADMIN_ROLE){
+        if (loginUser.getUserRole() == UserConstant.ADMIN_ROLE) {
             route.setRouteStatus(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS);
         }
 
@@ -204,7 +223,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.NOT_LOGIN_ERROR);
         }
         Integer userRole = loginUser.getUserRole();
-
+        Integer routeStatus = searchRouteRequest.getRouteStatus();
+        if (routeStatus != null) {
+            queryWrapper.lambda().eq(Route::getRouteStatus, routeStatus);
+        }
 
         int pageNum = searchRouteRequest.getPageNum();
         int pageSize = searchRouteRequest.getPageSize();
@@ -223,16 +245,16 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             return routeVOPage;
         }
         if (userRole == UserConstant.ADMIN_ROLE) {
-            //管理员还可以按照用户和线路状态查询
+            // 管理员还可以按照用户和线路状态查询
             Long userId = searchRouteRequest.getUserId();
             if (userId != null && userId > 0) {
                 queryWrapper.lambda().eq(Route::getUserId, userId);
             }
-            Integer routeStatus = searchRouteRequest.getRouteStatus();
-            if (routeStatus != null && routeStatus > 0) {
-                queryWrapper.lambda().eq(Route::getRouteStatus, routeStatus);
-            }
-            //Page<Route> page = new Page<>(pageNum, pageSize);
+            // Integer routeStatus = searchRouteRequest.getRouteStatus();
+            // if (routeStatus != null) {
+            //     queryWrapper.lambda().eq(Route::getRouteStatus, routeStatus);
+            // }
+            // Page<Route> page = new Page<>(pageNum, pageSize);
             Page<Route> routePage = this.page(page, queryWrapper);
             List<Route> routeList = routePage.getRecords();
 
@@ -262,7 +284,8 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             // 处理routeTags
             Gson gson = new Gson();
             String routeImage = route.getRouteImage();
-            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>(){}.getType());
+            List<String> routeImageList = gson.fromJson(routeImage, new TypeToken<List<String>>() {
+            }.getType());
             routeVO.setRouteImage(routeImageList);
 
             String routeTags = route.getRouteTags();
@@ -270,7 +293,6 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             }.getType());
 
             routeVO.setRouteTags(routeTagsList);
-
 
             String alongScenicAreas = route.getAlongScenicAreas();
             List<Long> alongScenicAreasIds = gson.fromJson(alongScenicAreas, new TypeToken<List<Long>>() {
@@ -283,6 +305,31 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
                 routeVO.setAlongScenicAreaVO(scenicAreasList.stream().map(scenicArea -> {
                     ScenicAreaVO scenicAreaVO = new ScenicAreaVO();
                     BeanUtils.copyProperties(scenicArea, scenicAreaVO);
+
+
+                    // 处理景区图片赋值给VO
+                    scenicAreaVO.setScenicAreaImages(gson.fromJson(scenicArea.getScenicAreaImage(), new TypeToken<List<String>>() {
+                    }.getType()));
+                    // 处理景区创建人
+                    scenicAreaVO.setCreateScenicAreaUserAccount(userService.getById(scenicArea.getCreateScenicAreaUserId()).getUserAccount());
+                    Long id = scenicArea.getId();
+                    QueryWrapper<ScenicSpot> spotQueryWrapper = new QueryWrapper<>();
+                    spotQueryWrapper.lambda().eq(ScenicSpot::getScenicAreaId, id);
+                    List<ScenicSpot> spotList = scenicSpotService.list(spotQueryWrapper);
+                    if (CollectionUtils.isNotEmpty(spotList)) {
+                        scenicAreaVO.setScenicSpots(spotList.stream().map(spot -> {
+                            ScenicSpotVO scenicSpotVO = new ScenicSpotVO();
+                            BeanUtils.copyProperties(spot, scenicSpotVO);
+                            // 处理景点图片赋值给VO
+                            scenicSpotVO.setScenicSpotImages(gson.fromJson(spot.getScenicSpotImage(), new TypeToken<List<String>>() {
+                            }.getType()));
+                            // 处理景点创建人
+                            scenicSpotVO.setCreateScenicSpotUserAccount(userService.getById(spot.getCreateScenicSpotUserId()).getUserAccount());
+                            return scenicSpotVO;
+                        }).collect(Collectors.toList()));
+                    }
+
+
                     return scenicAreaVO;
                 }).collect(Collectors.toList()));
             }
@@ -337,13 +384,51 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改的线路不存在");
         }
 
+        // 如果更新的标签内容不为空，更新标签内容
+        List<Long> routeElements = updateRouteRequest.getRouteElements();
+        if (routeElements != null) {
+            QueryWrapper<RouteElement> routeElementQueryWrapper = new QueryWrapper<>();
+            routeElementQueryWrapper.lambda().eq(RouteElement::getRouteId, id);
+
+            routeElementService.remove(routeElementQueryWrapper);
+
+            for (Long routeElementId : routeElements) {
+                QueryWrapper<RouteElement> queryWrapper = new QueryWrapper<>();
+                queryWrapper.lambda().eq(RouteElement::getElementId, routeElementId);
+                queryWrapper.lambda().eq(RouteElement::getRouteId, id);
+
+                RouteElement routeElement = new RouteElement();
+                routeElement.setElementId(routeElementId);
+                routeElement.setRouteId(id);
+                routeElementService.save(routeElement);
+
+            }
+        }
+
         Route route = new Route();
         BeanUtils.copyProperties(updateRouteRequest, route);
         List<String> routeTags = updateRouteRequest.getRouteTags();
-        if (CollectionUtils.isNotEmpty(routeTags)){
+        if (CollectionUtils.isNotEmpty(routeTags)) {
             String jsonRouteTags = gson.toJson(routeTags);
             route.setRouteTags(jsonRouteTags);
         }
+
+        List<Long> alongScenicArea = updateRouteRequest.getAlongScenicArea();
+        // 判断更新的景区是否存在
+        if (CollectionUtils.isNotEmpty(alongScenicArea)) {
+            for (Long alongScenicAreaId : alongScenicArea) {
+                QueryWrapper<ScenicArea> scenicAreaQueryWrapper = new QueryWrapper<>();
+                scenicAreaQueryWrapper.lambda().eq(ScenicArea::getId, alongScenicAreaId);
+                ScenicArea one = scenicAreaService.getOne(scenicAreaQueryWrapper);
+                if (one == null) {
+                    throw new ServiceException(ErrorCode.PARAMS_ERROR, "更改的景区不存在");
+                }
+            }
+        }
+
+        String jsonAlongScenicArea = gson.toJson(alongScenicArea);
+        route.setAlongScenicAreas(jsonAlongScenicArea);
+
 
         Boolean isAdmin = userService.isAdmin();
 
@@ -356,11 +441,13 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
                 throw new ServiceException(ErrorCode.NO_AUTH_ERROR);
             }
             Integer dbRouteStatus = dbroute.getRouteStatus();
-            if (dbRouteStatus == null || dbRouteStatus.equals(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS)){
+            if (dbRouteStatus == null || dbRouteStatus.equals(RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS)) {
                 throw new ServiceException(ErrorCode.PARAMS_ERROR, "该路线已审核通过，无法修改");
-            };
+            }
+
             // return this.updateById(route);
         }
+
 
         return this.updateById(route);
     }
@@ -383,7 +470,8 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         String routeImageUrl = qiniuUtil.upload(routeImage);
         String dbRouteImage = dbroute.getRouteImage();
         Gson gson = new Gson();
-        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
+        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>() {
+        }.getType());
         Long imageIndex = updateRouteImageRequest.getIndex();
         if (imageIndex == null || imageIndex < 0 || imageIndex >= imageList.size()) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片索引错误");
@@ -414,7 +502,8 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         String routeImageUrl = qiniuUtil.upload(routeImage);
         String dbRouteImage = dbroute.getRouteImage();
         Gson gson = new Gson();
-        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
+        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>() {
+        }.getType());
         imageList.add(routeImageUrl);
         String jsonRouteImage = gson.toJson(imageList);
         Route route = new Route();
@@ -436,9 +525,10 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
         String dbRouteImage = dbroute.getRouteImage();
         Gson gson = new Gson();
-        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>(){}.getType());
-        Long imageIndex = deleteRouteImageRequest.getIndex();
-        if ((imageIndex == null) || (imageIndex < 0)|| (imageIndex >= imageList.size())) {
+        List<String> imageList = gson.fromJson(dbRouteImage, new TypeToken<List<String>>() {
+        }.getType());
+        Long imageIndex = deleteRouteImageRequest.getImageIndex();
+        if ((imageIndex == null) || (imageIndex < 0) || (imageIndex >= imageList.size())) {
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "图片索引错误");
         }
         imageList.remove(imageIndex.intValue());
@@ -452,7 +542,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
     @Override
     public List<RouteVO> recommendRouteByUserTags(long num, UserVO loginUser) {
         QueryWrapper<Route> queryWrapper = new QueryWrapper<>();
-        //queryWrapper.select("id", "routeTags");
+        // queryWrapper.select("id", "routeTags");
         queryWrapper.isNotNull("routeTags");
         List<Route> routeList = this.list(queryWrapper);
 
@@ -462,7 +552,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
         // List<String> userTagsList = gson.fromJson(userTags, new TypeToken<List<String>>() {
         // }.getType());
 
-        //依次计算用户标签和路线标签之间的相似度
+        // 依次计算用户标签和路线标签之间的相似度
         List<Pair<Route, Long>> list = new ArrayList<>();
         for (Route route : routeList) {
             String routeTags = route.getRouteTags();
@@ -476,15 +566,15 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
 
         }
 
-        //按相似度排序
+        // 按相似度排序
         List<Pair<Route, Long>> topRoutePairList = list.stream()
                 .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
                 .limit(num)
                 .collect(Collectors.toList());
 
 
-        //原本的顺序列表
-        //List<Route> topRouteList = topRoutePairList.stream().map(Pair::getKey).collect(Collectors.toList());
+        // 原本的顺序列表
+        // List<Route> topRouteList = topRoutePairList.stream().map(Pair::getKey).collect(Collectors.toList());
         ArrayList<Route> finalRouteList = new ArrayList<>();
         for (Pair<Route, Long> pair : topRoutePairList) {
             finalRouteList.add(pair.getKey());
@@ -499,7 +589,7 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
             throw new ServiceException(ErrorCode.PARAMS_ERROR, "参数错误");
         }
         List<Long> routeAlongScenicArea = updateRouteAlongScenicAreaRequest.getRouteAlongScenicArea();
-        //判断更新的景区列表是否存在
+        // 判断更新的景区列表是否存在
         routeAlongScenicArea.forEach(scenicAreaId -> {
             ScenicArea scenicArea = scenicAreaService.getById(scenicAreaId);
             if (ObjectUtils.isEmpty(scenicArea)) {
@@ -523,6 +613,18 @@ public class RouteServiceImpl extends ServiceImpl<RouteMapper, Route>
     @Override
     public Boolean deleteAlongScenicArea(DeleteRouteAlongScenicAreaRequest deleteRouteAlongScenicAreaRequest) {
         return null;
+    }
+
+    @Override
+    public List<RouteVO> getRouteForMiniprogram(SearchRouteForMIniprogramRequest searchRouteForMIniprogramRequest) {
+        Long id = searchRouteForMIniprogramRequest.getId();
+        QueryWrapper<Route> queryWrapper = new QueryWrapper<>();
+        if (id != null) {
+            queryWrapper.lambda().eq(Route::getId, id);
+        }
+        queryWrapper.lambda().eq(Route::getRouteStatus, RouteConstant.ROUTE_STATUS_AUDIT_SUCCESS);
+        List<Route> routeList = this.list(queryWrapper);
+        return this.getRouteListToRouteVOList(routeList);
     }
 
 

@@ -46,6 +46,7 @@ public class ScenicAreaControllerImpl implements ScenicAreaController {
         return Result.success(scenicAreaVOPage);
     }
 
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @Override
     public Result deleteScenicArea(@RequestBody DeleteBatchRequest deleteBatchRequest) {
         List<Long> ids = deleteBatchRequest.getIds();
@@ -85,4 +86,13 @@ public class ScenicAreaControllerImpl implements ScenicAreaController {
             return Result.error(ErrorCode.OPERATION_ERROR, "删除失败");
         }
         return Result.success("删除成功");    }
+
+    @Override
+    public Result auditScenicArea(Long id) {
+        Boolean b = scenicAreaService.auditScenicArea(id);
+        if (!b){
+            return Result.error(ErrorCode.OPERATION_ERROR, "审核失败");
+        }
+        return Result.success("审核成功");
+    }
 }
